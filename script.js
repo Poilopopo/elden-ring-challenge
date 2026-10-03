@@ -843,6 +843,7 @@ function createSpinSequence(
         return sequence;
     }
 
+    // Nombre de cases parcourues pendant l'animation
     const spinCount =
         Math.max(
             35,
@@ -854,7 +855,10 @@ function createSpinSequence(
             )
         );
 
-    // Objets qui défilent pendant le spin
+    // --------------------------------------------------------
+    // ANIMATION : on fait défiler des éléments aléatoires
+    // --------------------------------------------------------
+
     for (
         let i = 0;
         i < spinCount;
@@ -871,27 +875,77 @@ function createSpinSequence(
         );
     }
 
-    // Le résultat final
+    // --------------------------------------------------------
+    // FIN DE L'ANIMATION
+    //
+    // On construit les 5 cases finales directement
+    // depuis l'ordre du fichier TXT.
+    // --------------------------------------------------------
+
+    const selectedIndex =
+        items.indexOf(
+            selectedItem
+        );
+
+    // Deux éléments AVANT
+    const previous2 =
+        items[
+            (
+                selectedIndex - 2 +
+                items.length
+            ) %
+            items.length
+        ];
+
+    const previous1 =
+        items[
+            (
+                selectedIndex - 1 +
+                items.length
+            ) %
+            items.length
+        ];
+
+    // Deux éléments APRÈS
+    const next1 =
+        items[
+            (
+                selectedIndex + 1
+            ) %
+            items.length
+        ];
+
+    const next2 =
+        items[
+            (
+                selectedIndex + 2
+            ) %
+            items.length
+        ];
+
+    // --------------------------------------------------------
+    // On ajoute la séquence finale
+    // --------------------------------------------------------
+
+    sequence.push(
+        previous2
+    );
+
+    sequence.push(
+        previous1
+    );
+
     sequence.push(
         selectedItem
     );
 
-    // Deux objets APRÈS le résultat
-    for (
-        let i = 0;
-        i < 2;
-        i++
-    ) {
-        const randomIndex =
-            Math.floor(
-                Math.random() *
-                items.length
-            );
+    sequence.push(
+        next1
+    );
 
-        sequence.push(
-            items[randomIndex]
-        );
-    }
+    sequence.push(
+        next2
+    );
 
     return sequence;
 }
