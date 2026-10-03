@@ -88,23 +88,16 @@ body::before {
 
 header {
     flex-shrink: 0;
-
     text-align: center;
-
-    padding-top: 12px;
+    padding-top: 10px;
 }
 
-
-/* Le losange est maintenant bien séparé du titre */
-
 .ornament {
+    display: block;
     color: #c8a95c;
-
     font-size: 17px;
-
     line-height: 1;
-
-    margin-bottom: 14px;
+    margin-bottom: 22px;
 }
 
 
@@ -710,12 +703,12 @@ and (max-height: 850px) {
 
 
     header {
-        padding-top: 5px;
+        padding-top: 10px;
     }
 
 
     .ornament {
-        margin-bottom: 8px;
+        margin-bottom: 22px;
     }
 
 
