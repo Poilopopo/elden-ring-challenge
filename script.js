@@ -782,13 +782,6 @@ function drawSlotMachine(
         "top";
 
 
-    ctx.fillText(
-        "✦  DESTIN  ✦",
-        width / 2,
-        28
-    );
-
-
     // --------------------------------------------------------
     // EFFET JACKPOT
     // --------------------------------------------------------
@@ -830,13 +823,6 @@ function drawSlotMachine(
 
         ctx.textBaseline =
             "bottom";
-
-
-        ctx.fillText(
-            "✦ JACKPOT ✦",
-            width / 2,
-            height - 27
-        );
 
     }
 
