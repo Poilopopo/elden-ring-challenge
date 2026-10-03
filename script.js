@@ -1,5 +1,6 @@
 // ============================================================
 // ELDEN RING CHALLENGE
+// MACHINE A SOUS
 // ============================================================
 
 
@@ -21,10 +22,13 @@ async function loadItems(filename) {
 
         }
 
-        const text = await response.text();
+        const text =
+            await response.text();
+
 
         return text
             .split(/\r?\n/)
+
             .map(function(line) {
                 return line.trim();
             })
@@ -44,15 +48,17 @@ async function loadItems(filename) {
                 const parts =
                     line.split("|");
 
+
                 const name =
                     parts[0].trim();
 
-                let weight = 100;
-
 
                 // ------------------------------------------------
-                // POIDS
+                // POIDS PAR DEFAUT
                 // ------------------------------------------------
+
+                let weight = 50;
+
 
                 if (
                     parts.length > 1 &&
@@ -63,6 +69,7 @@ async function loadItems(filename) {
                         Number(
                             parts[1].trim()
                         );
+
 
                     if (
                         Number.isFinite(parsedWeight) &&
@@ -78,8 +85,11 @@ async function loadItems(filename) {
 
 
                 return {
+
                     name: name,
+
                     weight: weight
+
                 };
 
             });
@@ -93,6 +103,7 @@ async function loadItems(filename) {
             error
         );
 
+
         return [];
 
     }
@@ -101,16 +112,18 @@ async function loadItems(filename) {
 
 
 // ============================================================
-// DONNÉES
+// DONNEES
 // ============================================================
 
 let talismans = [];
+
 let armes = [];
+
 let objectifs = [];
 
 
 // ============================================================
-// ROUES PRINCIPALES
+// MACHINES PRINCIPALES
 // ============================================================
 
 const wheels = {
@@ -124,9 +137,11 @@ const wheels = {
 
         items: talismans,
 
-        rotation: 0,
+        spinning: false,
 
-        spinning: false
+        selectedItem: null,
+
+        animationId: null
 
     },
 
@@ -140,9 +155,11 @@ const wheels = {
 
         items: armes,
 
-        rotation: 0,
+        spinning: false,
 
-        spinning: false
+        selectedItem: null,
+
+        animationId: null
 
     },
 
@@ -156,9 +173,11 @@ const wheels = {
 
         items: objectifs,
 
-        rotation: 0,
+        spinning: false,
 
-        spinning: false
+        selectedItem: null,
+
+        animationId: null
 
     }
 
@@ -166,7 +185,7 @@ const wheels = {
 
 
 // ============================================================
-// ROUES INDIVIDUELLES
+// MACHINES INDIVIDUELLES
 // ============================================================
 
 const singleWheels = {
@@ -180,9 +199,11 @@ const singleWheels = {
 
         items: talismans,
 
-        rotation: 0,
+        spinning: false,
 
-        spinning: false
+        selectedItem: null,
+
+        animationId: null
 
     },
 
@@ -196,9 +217,11 @@ const singleWheels = {
 
         items: armes,
 
-        rotation: 0,
+        spinning: false,
 
-        spinning: false
+        selectedItem: null,
+
+        animationId: null
 
     },
 
@@ -212,9 +235,11 @@ const singleWheels = {
 
         items: objectifs,
 
-        rotation: 0,
+        spinning: false,
 
-        spinning: false
+        selectedItem: null,
+
+        animationId: null
 
     }
 
@@ -225,7 +250,7 @@ const singleWheels = {
 // COULEURS
 // ============================================================
 
-const segmentColors = [
+const slotColors = [
 
     "#302c22",
     "#3b3527",
@@ -238,7 +263,7 @@ const segmentColors = [
 
 
 // ============================================================
-// TIRAGE PONDÉRÉ
+// TIRAGE PONDERE
 // ============================================================
 
 function chooseWeightedItem(items) {
@@ -286,10 +311,89 @@ function chooseWeightedItem(items) {
 
 
 // ============================================================
-// DESSIN DES ROUES
+// OUTILS
 // ============================================================
 
-function drawWheel(wheel) {
+function getFontSize(canvas) {
+
+    if (canvas.width >= 600) {
+        return 25;
+    }
+
+    return 21;
+
+}
+
+
+function getVisibleRows(canvas) {
+
+    if (canvas.width >= 600) {
+        return 5;
+    }
+
+    return 5;
+
+}
+
+
+function getRowHeight(canvas) {
+
+    return canvas.height / 5;
+
+}
+
+
+function truncateText(
+    ctx,
+    text,
+    maxWidth
+) {
+
+    if (
+        ctx.measureText(text).width <=
+        maxWidth
+    ) {
+
+        return text;
+
+    }
+
+
+    let result =
+        text;
+
+
+    while (
+        result.length > 1 &&
+        ctx.measureText(
+            result + "…"
+        ).width > maxWidth
+    ) {
+
+        result =
+            result.substring(
+                0,
+                result.length - 1
+            );
+
+    }
+
+
+    return result + "…";
+
+}
+
+
+// ============================================================
+// DESSIN DE LA MACHINE A SOUS
+// ============================================================
+
+function drawSlotMachine(
+    wheel,
+    visibleItems,
+    offset,
+    finished
+) {
 
     const canvas =
         wheel.canvas;
@@ -304,254 +408,366 @@ function drawWheel(wheel) {
         canvas.getContext("2d");
 
 
-    const size =
+    const width =
         canvas.width;
 
 
-    const center =
-        size / 2;
-
-
-    const radius =
-        size / 2 - 8;
-
-
-    const items =
-        wheel.items;
-
-
-    if (!items || !items.length) {
-        return;
-    }
+    const height =
+        canvas.height;
 
 
     ctx.clearRect(
         0,
         0,
-        size,
-        size
-    );
-
-
-    const slice =
-        (
-            Math.PI * 2
-        ) /
-        items.length;
-
-
-    ctx.save();
-
-
-    ctx.translate(
-        center,
-        center
-    );
-
-
-    ctx.rotate(
-        wheel.rotation
-    );
-
-
-    items.forEach(
-        function(item, index) {
-
-            const startAngle =
-                index * slice -
-                Math.PI / 2;
-
-
-            const endAngle =
-                startAngle +
-                slice;
-
-
-            // ------------------------------------------------
-            // SEGMENT
-            // ------------------------------------------------
-
-            ctx.beginPath();
-
-
-            ctx.moveTo(
-                0,
-                0
-            );
-
-
-            ctx.arc(
-                0,
-                0,
-                radius,
-                startAngle,
-                endAngle
-            );
-
-
-            ctx.closePath();
-
-
-            ctx.fillStyle =
-                segmentColors[
-                    index %
-                    segmentColors.length
-                ];
-
-
-            ctx.fill();
-
-
-            ctx.strokeStyle =
-                "#806c3e";
-
-
-            ctx.lineWidth = 2;
-
-
-            ctx.stroke();
-
-
-            // ------------------------------------------------
-            // TEXTE
-            // ------------------------------------------------
-
-            ctx.save();
-
-
-            const textAngle =
-                startAngle +
-                slice / 2;
-
-
-            ctx.rotate(
-                textAngle
-            );
-
-
-            ctx.translate(
-                radius * 0.62,
-                0
-            );
-
-
-            ctx.rotate(
-                Math.PI / 2
-            );
-
-
-            let fontSize = 15;
-
-
-            if (
-                items.length > 15
-            ) {
-
-                fontSize = 11;
-
-            }
-
-
-            if (
-                items.length > 25
-            ) {
-
-                fontSize = 8;
-
-            }
-
-
-            ctx.font =
-                "600 " +
-                fontSize +
-                "px Cinzel, Georgia, serif";
-
-
-            ctx.fillStyle =
-                "#d8c28a";
-
-
-            ctx.textAlign =
-                "center";
-
-
-            ctx.textBaseline =
-                "middle";
-
-
-            let text =
-                item.name;
-
-
-            const maxCharacters =
-                items.length > 15
-                    ? 16
-                    : 22;
-
-
-            if (
-                text.length >
-                maxCharacters
-            ) {
-
-                text =
-                    text.substring(
-                        0,
-                        maxCharacters - 1
-                    ) +
-                    "…";
-
-            }
-
-
-            ctx.fillText(
-                text,
-                0,
-                0
-            );
-
-
-            ctx.restore();
-
-        }
+        width,
+        height
     );
 
 
     // --------------------------------------------------------
-    // CENTRE
+    // FOND
     // --------------------------------------------------------
-
-    ctx.beginPath();
-
-
-    ctx.arc(
-        0,
-        0,
-        42,
-        0,
-        Math.PI * 2
-    );
-
 
     ctx.fillStyle =
-        "#15130e";
+        "#110f0b";
 
 
-    ctx.fill();
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
 
+
+    // --------------------------------------------------------
+    // CADRE EXTERIEUR
+    // --------------------------------------------------------
 
     ctx.strokeStyle =
         "#b99a52";
 
 
+    ctx.lineWidth = 8;
+
+
+    ctx.strokeRect(
+        8,
+        8,
+        width - 16,
+        height - 16
+    );
+
+
+    ctx.strokeStyle =
+        "#5d4d2e";
+
+
+    ctx.lineWidth = 3;
+
+
+    ctx.strokeRect(
+        20,
+        20,
+        width - 40,
+        height - 40
+    );
+
+
+    // --------------------------------------------------------
+    // ZONE DES ITEMS
+    // --------------------------------------------------------
+
+    const rowHeight =
+        getRowHeight(canvas);
+
+
+    const centerY =
+        height / 2;
+
+
+    const fontSize =
+        getFontSize(canvas);
+
+
+    ctx.save();
+
+
+    // Zone centrale légèrement plus sombre
+    ctx.fillStyle =
+        "#1a1710";
+
+
+    ctx.fillRect(
+        24,
+        24,
+        width - 48,
+        height - 48
+    );
+
+
+    // --------------------------------------------------------
+    // CLIP
+    // --------------------------------------------------------
+
+    ctx.beginPath();
+
+
+    ctx.rect(
+        24,
+        24,
+        width - 48,
+        height - 48
+    );
+
+
+    ctx.clip();
+
+
+    // --------------------------------------------------------
+    // ITEMS
+    // --------------------------------------------------------
+
+    for (
+        let i = 0;
+        i < visibleItems.length;
+        i++
+    ) {
+
+        const item =
+            visibleItems[i];
+
+
+        const y =
+            centerY +
+            (
+                i - 2
+            ) *
+            rowHeight -
+            offset;
+
+
+        // ----------------------------------------------------
+        // LIGNE
+        // ----------------------------------------------------
+
+        ctx.fillStyle =
+            slotColors[
+                i %
+                slotColors.length
+            ];
+
+
+        ctx.fillRect(
+            28,
+            y - rowHeight / 2 + 2,
+            width - 56,
+            rowHeight - 4
+        );
+
+
+        // ----------------------------------------------------
+        // TEXTE
+        // ----------------------------------------------------
+
+        ctx.font =
+            "600 " +
+            fontSize +
+            "px Cinzel, Georgia, serif";
+
+
+        ctx.textAlign =
+            "center";
+
+
+        ctx.textBaseline =
+            "middle";
+
+
+        const text =
+            truncateText(
+                ctx,
+                item.name,
+                width - 90
+            );
+
+
+        // Ligne centrale plus lumineuse
+        const distanceFromCenter =
+            Math.abs(
+                y - centerY
+            );
+
+
+        if (
+            distanceFromCenter <
+            rowHeight * 0.35
+        ) {
+
+            ctx.fillStyle =
+                "#f0d98f";
+
+        }
+
+        else {
+
+            ctx.fillStyle =
+                "#9b895c";
+
+        }
+
+
+        ctx.fillText(
+            text,
+            width / 2,
+            y
+        );
+
+
+        // ----------------------------------------------------
+        // SEPARATION
+        // ----------------------------------------------------
+
+        ctx.strokeStyle =
+            "#806c3e";
+
+
+        ctx.lineWidth = 1;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            35,
+            y + rowHeight / 2
+        );
+
+
+        ctx.lineTo(
+            width - 35,
+            y + rowHeight / 2
+        );
+
+
+        ctx.stroke();
+
+    }
+
+
+    ctx.restore();
+
+
+    // --------------------------------------------------------
+    // BANDEAU CENTRAL
+    // --------------------------------------------------------
+
+    const centralTop =
+        centerY -
+        rowHeight / 2;
+
+
+    ctx.fillStyle =
+        "rgba(185,154,82,0.10)";
+
+
+    ctx.fillRect(
+        22,
+        centralTop,
+        width - 44,
+        rowHeight
+    );
+
+
+    ctx.strokeStyle =
+        "#c8a95c";
+
+
     ctx.lineWidth = 4;
 
 
-    ctx.stroke();
+    ctx.strokeRect(
+        22,
+        centralTop,
+        width - 44,
+        rowHeight
+    );
 
+
+    // --------------------------------------------------------
+    // FLECHES LATERALES
+    // --------------------------------------------------------
+
+    ctx.fillStyle =
+        "#c8a95c";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        10,
+        centerY
+    );
+
+
+    ctx.lineTo(
+        28,
+        centerY - 12
+    );
+
+
+    ctx.lineTo(
+        28,
+        centerY + 12
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        width - 10,
+        centerY
+    );
+
+
+    ctx.lineTo(
+        width - 28,
+        centerY - 12
+    );
+
+
+    ctx.lineTo(
+        width - 28,
+        centerY + 12
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    // --------------------------------------------------------
+    // TITRE
+    // --------------------------------------------------------
 
     ctx.font =
-        "28px Georgia";
+        "700 " +
+        (
+            canvas.width >= 600
+                ? 18
+                : 15
+        ) +
+        "px Cinzel, Georgia, serif";
 
 
     ctx.fillStyle =
@@ -563,43 +779,439 @@ function drawWheel(wheel) {
 
 
     ctx.textBaseline =
-        "middle";
+        "top";
 
 
     ctx.fillText(
-        "✦",
-        0,
-        1
+        "✦  DESTIN  ✦",
+        width / 2,
+        28
     );
 
 
-    ctx.restore();
+    // --------------------------------------------------------
+    // EFFET JACKPOT
+    // --------------------------------------------------------
+
+    if (finished) {
+
+        ctx.strokeStyle =
+            "#e0bd62";
+
+
+        ctx.lineWidth = 5;
+
+
+        ctx.strokeRect(
+            15,
+            15,
+            width - 30,
+            height - 30
+        );
+
+
+        ctx.font =
+            "700 " +
+            (
+                canvas.width >= 600
+                    ? 18
+                    : 15
+            ) +
+            "px Cinzel, Georgia, serif";
+
+
+        ctx.fillStyle =
+            "#f0d98f";
+
+
+        ctx.textAlign =
+            "center";
+
+
+        ctx.textBaseline =
+            "bottom";
+
+
+        ctx.fillText(
+            "✦ JACKPOT ✦",
+            width / 2,
+            height - 27
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// CREATION DE LA LISTE DE DEFILÉ
+// ============================================================
+
+function createSpinSequence(
+    items,
+    selectedItem
+) {
+
+    const sequence = [];
+
+
+    if (
+        !items.length
+    ) {
+
+        return sequence;
+
+    }
 
 
     // --------------------------------------------------------
-    // BORDURE EXTÉRIEURE
+    // On crée une longue séquence aléatoire
     // --------------------------------------------------------
 
-    ctx.beginPath();
+    const spinCount =
+        Math.max(
+            35,
+            Math.min(
+                70,
+                Math.floor(
+                    items.length * 0.4
+                )
+            )
+        );
 
 
-    ctx.arc(
-        center,
-        center,
-        radius,
-        0,
-        Math.PI * 2
+    for (
+        let i = 0;
+        i < spinCount;
+        i++
+    ) {
+
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                items.length
+            );
+
+
+        sequence.push(
+            items[randomIndex]
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // Le résultat est toujours le dernier
+    // --------------------------------------------------------
+
+    sequence.push(
+        selectedItem
     );
 
 
-    ctx.strokeStyle =
-        "#b99a52";
+    return sequence;
+
+}
 
 
-    ctx.lineWidth = 5;
+// ============================================================
+// ANIMATION MACHINE A SOUS
+// ============================================================
+
+function spinSlotMachine(
+    type,
+    wheelCollection
+) {
+
+    const wheel =
+        wheelCollection[type];
 
 
-    ctx.stroke();
+    if (
+        !wheel ||
+        wheel.spinning ||
+        !wheel.items ||
+        !wheel.items.length
+    ) {
+
+        return;
+
+    }
+
+
+    wheel.spinning =
+        true;
+
+
+    const selectedItem =
+        chooseWeightedItem(
+            wheel.items
+        );
+
+
+    wheel.selectedItem =
+        selectedItem;
+
+
+    const sequence =
+        createSpinSequence(
+            wheel.items,
+            selectedItem
+        );
+
+
+    const canvas =
+        wheel.canvas;
+
+
+    const rowHeight =
+        getRowHeight(canvas);
+
+
+    const duration =
+        4300;
+
+
+    const startTime =
+        performance.now();
+
+
+    let lastStep =
+        -1;
+
+
+    function animate(now) {
+
+        const elapsed =
+            now -
+            startTime;
+
+
+        let progress =
+            elapsed /
+            duration;
+
+
+        if (
+            progress > 1
+        ) {
+
+            progress = 1;
+
+        }
+
+
+        // ----------------------------------------------------
+        // EASING
+        // ----------------------------------------------------
+
+        const eased =
+            1 -
+            Math.pow(
+                1 - progress,
+                4
+            );
+
+
+        const totalDistance =
+            (
+                sequence.length - 1
+            ) *
+            rowHeight;
+
+
+        const distance =
+            eased *
+            totalDistance;
+
+
+        const currentStep =
+            Math.floor(
+                distance /
+                rowHeight
+            );
+
+
+        const offset =
+            distance %
+            rowHeight;
+
+
+        // ----------------------------------------------------
+        // PETIT EFFET SONORE VISUEL
+        // changement de ligne
+        // ----------------------------------------------------
+
+        if (
+            currentStep !== lastStep
+        ) {
+
+            lastStep =
+                currentStep;
+
+        }
+
+
+        // ----------------------------------------------------
+        // Fenêtre visible
+        // ----------------------------------------------------
+
+        const visibleItems = [];
+
+
+        const baseIndex =
+            Math.min(
+                currentStep,
+                sequence.length - 1
+            );
+
+
+        for (
+            let i = -2;
+            i <= 2;
+            i++
+        ) {
+
+            let index =
+                baseIndex + i;
+
+
+            if (
+                index < 0
+            ) {
+
+                index = 0;
+
+            }
+
+
+            if (
+                index >= sequence.length
+            ) {
+
+                index =
+                    sequence.length - 1;
+
+            }
+
+
+            visibleItems.push(
+                sequence[index]
+            );
+
+        }
+
+
+        drawSlotMachine(
+            wheel,
+            visibleItems,
+            offset,
+            false
+        );
+
+
+        if (
+            progress < 1
+        ) {
+
+            wheel.animationId =
+                requestAnimationFrame(
+                    animate
+                );
+
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // FIN
+        // ----------------------------------------------------
+
+        drawSlotMachine(
+            wheel,
+            [
+                selectedItem,
+                selectedItem,
+                selectedItem,
+                selectedItem,
+                selectedItem
+            ],
+            0,
+            true
+        );
+
+
+        wheel.spinning =
+            false;
+
+
+        wheel.animationId =
+            null;
+
+
+        showResult(
+            type,
+            selectedItem,
+            wheelCollection ===
+                singleWheels
+        );
+
+
+        // ----------------------------------------------------
+        // FIN DES 3 MACHINES
+        // ----------------------------------------------------
+
+        if (
+            wheelCollection ===
+            wheels
+        ) {
+
+            const stillSpinning =
+                Object
+                    .values(wheels)
+                    .some(
+                        function(w) {
+
+                            return w.spinning;
+
+                        }
+                    );
+
+
+            if (
+                !stillSpinning
+            ) {
+
+                const button =
+                    document.getElementById(
+                        "spin-all"
+                    );
+
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+
+                    button.textContent =
+                        "⚔ TOURNER LES ROUES ⚔";
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    wheel.animationId =
+        requestAnimationFrame(
+            animate
+        );
 
 }
 
@@ -646,7 +1258,7 @@ async function initialize() {
 
 
     // --------------------------------------------------------
-    // Mise à jour des roues
+    // Mise à jour des machines
     // --------------------------------------------------------
 
     wheels.talisman.items =
@@ -674,7 +1286,7 @@ async function initialize() {
 
 
     // --------------------------------------------------------
-    // Dessin
+    // Affichage initial
     // --------------------------------------------------------
 
     Object
@@ -682,7 +1294,14 @@ async function initialize() {
         .forEach(
             function(wheel) {
 
-                drawWheel(wheel);
+                drawSlotMachine(
+                    wheel,
+                    getInitialItems(
+                        wheel.items
+                    ),
+                    0,
+                    false
+                );
 
             }
         );
@@ -693,7 +1312,14 @@ async function initialize() {
         .forEach(
             function(wheel) {
 
-                drawWheel(wheel);
+                drawSlotMachine(
+                    wheel,
+                    getInitialItems(
+                        wheel.items
+                    ),
+                    0,
+                    false
+                );
 
             }
         );
@@ -715,6 +1341,46 @@ async function initialize() {
         "Objectifs chargés : " +
         objectifs.length
     );
+
+}
+
+
+// ============================================================
+// ITEMS INITIAUX
+// ============================================================
+
+function getInitialItems(items) {
+
+    if (
+        !items ||
+        !items.length
+    ) {
+
+        return [];
+
+    }
+
+
+    const result = [];
+
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        result.push(
+            items[
+                i %
+                items.length
+            ]
+        );
+
+    }
+
+
+    return result;
 
 }
 
@@ -791,7 +1457,7 @@ document
 
 
 // ============================================================
-// TOURNER LES 3 ROUES
+// BOUTON : TOURNER LES 3 MACHINES
 // ============================================================
 
 function spinAll() {
@@ -824,6 +1490,26 @@ function spinAll() {
     }
 
 
+    // --------------------------------------------------------
+    // Vérification des listes
+    // --------------------------------------------------------
+
+    if (
+        !talismans.length ||
+        !armes.length ||
+        !objectifs.length
+    ) {
+
+        console.error(
+            "Une des listes est vide."
+        );
+
+
+        return;
+
+    }
+
+
     button.disabled =
         true;
 
@@ -832,258 +1518,25 @@ function spinAll() {
         "⚔ DESTIN EN COURS... ⚔";
 
 
-    spinWheel(
+    // --------------------------------------------------------
+    // Lancement simultané
+    // --------------------------------------------------------
+
+    spinSlotMachine(
         "talisman",
         wheels
     );
 
 
-    spinWheel(
+    spinSlotMachine(
         "arme",
         wheels
     );
 
 
-    spinWheel(
+    spinSlotMachine(
         "objectif",
         wheels
-    );
-
-}
-
-
-// ============================================================
-// ROTATION D'UNE ROUE
-// ============================================================
-
-function spinWheel(
-    type,
-    wheelCollection
-) {
-
-    const wheel =
-        wheelCollection[type];
-
-
-    if (
-        !wheel ||
-        wheel.spinning ||
-        !wheel.items ||
-        !wheel.items.length
-    ) {
-
-        return;
-
-    }
-
-
-    wheel.spinning =
-        true;
-
-
-    const selectedItem =
-        chooseWeightedItem(
-            wheel.items
-        );
-
-
-    const selectedIndex =
-        wheel.items.indexOf(
-            selectedItem
-        );
-
-
-    const slice =
-        (
-            Math.PI * 2
-        ) /
-        wheel.items.length;
-
-
-    const targetAngle =
-        -(
-            selectedIndex *
-            slice +
-            slice / 2
-        );
-
-
-    const fullTurn =
-        Math.PI * 2;
-
-
-    const current =
-        wheel.rotation;
-
-
-    const currentNormalized =
-        (
-            current %
-            fullTurn +
-            fullTurn
-        ) %
-        fullTurn;
-
-
-    let difference =
-        targetAngle -
-        currentNormalized;
-
-
-    while (
-        difference < 0
-    ) {
-
-        difference +=
-            fullTurn;
-
-    }
-
-
-    const extraTurns =
-        7;
-
-
-    const finalRotation =
-        current +
-        difference +
-        extraTurns *
-        fullTurn;
-
-
-    const duration =
-        4300;
-
-
-    const startTime =
-        performance.now();
-
-
-    function animate(now) {
-
-        const elapsed =
-            now -
-            startTime;
-
-
-        let progress =
-            elapsed /
-            duration;
-
-
-        if (
-            progress > 1
-        ) {
-
-            progress = 1;
-
-        }
-
-
-        const eased =
-            1 -
-            Math.pow(
-                1 - progress,
-                5
-            );
-
-
-        wheel.rotation =
-            current +
-            (
-                finalRotation -
-                current
-            ) *
-            eased;
-
-
-        drawWheel(
-            wheel
-        );
-
-
-        if (
-            progress < 1
-        ) {
-
-            requestAnimationFrame(
-                animate
-            );
-
-
-            return;
-
-        }
-
-
-        wheel.rotation =
-            finalRotation;
-
-
-        drawWheel(
-            wheel
-        );
-
-
-        wheel.spinning =
-            false;
-
-
-        showResult(
-            type,
-            selectedItem,
-            wheelCollection ===
-                singleWheels
-        );
-
-
-        // ----------------------------------------------------
-        // FIN DES 3 ROUES
-        // ----------------------------------------------------
-
-        if (
-            wheelCollection ===
-            wheels
-        ) {
-
-            const stillSpinning =
-                Object
-                    .values(wheels)
-                    .some(
-                        function(w) {
-
-                            return w.spinning;
-
-                        }
-                    );
-
-
-            if (
-                !stillSpinning
-            ) {
-
-                const button =
-                    document.getElementById(
-                        "spin-all"
-                    );
-
-
-                button.disabled =
-                    false;
-
-
-                button.textContent =
-                    "⚔ TOURNER LES ROUES ⚔";
-
-            }
-
-        }
-
-    }
-
-
-    requestAnimationFrame(
-        animate
     );
 
 }
@@ -1129,7 +1582,7 @@ function spinSingle(type) {
     }
 
 
-    spinWheel(
+    spinSlotMachine(
         type,
         singleWheels
     );
@@ -1214,6 +1667,7 @@ function showResult(
         [
 
             {
+
                 transform:
                     "scale(0.85)",
 
