@@ -851,22 +851,11 @@ function createSpinSequence(
     items,
     selectedItem
 ) {
-
     const sequence = [];
 
-
-    if (
-        !items.length
-    ) {
-
+    if (!items.length) {
         return sequence;
-
     }
-
-
-    // --------------------------------------------------------
-    // On crée une longue séquence aléatoire
-    // --------------------------------------------------------
 
     const spinCount =
         Math.max(
@@ -879,38 +868,46 @@ function createSpinSequence(
             )
         );
 
-
+    // Objets qui défilent pendant le spin
     for (
         let i = 0;
         i < spinCount;
         i++
     ) {
-
         const randomIndex =
             Math.floor(
                 Math.random() *
                 items.length
             );
 
-
         sequence.push(
             items[randomIndex]
         );
-
     }
 
-
-    // --------------------------------------------------------
-    // Le résultat est toujours le dernier
-    // --------------------------------------------------------
-
+    // Le résultat final
     sequence.push(
         selectedItem
     );
 
+    // Deux objets APRÈS le résultat
+    for (
+        let i = 0;
+        i < 2;
+        i++
+    ) {
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                items.length
+            );
+
+        sequence.push(
+            items[randomIndex]
+        );
+    }
 
     return sequence;
-
 }
 
 
@@ -1013,10 +1010,11 @@ function spinSlotMachine(
             );
 
 
+        const selectedIndex =
+            sequence.length - 3;
+        
         const totalDistance =
-            (
-                sequence.length - 1
-            ) *
+            selectedIndex *
             rowHeight;
 
 
@@ -1129,15 +1127,21 @@ function spinSlotMachine(
         // FIN
         // ----------------------------------------------------
 
+        const finalItems = [];
+        
+        for (
+            let i = selectedIndex - 2;
+            i <= selectedIndex + 2;
+            i++
+        ) {
+            finalItems.push(
+                sequence[i]
+            );
+        }
+        
         drawSlotMachine(
             wheel,
-            [
-                selectedItem,
-                selectedItem,
-                selectedItem,
-                selectedItem,
-                selectedItem
-            ],
+            finalItems,
             0,
             true
         );
