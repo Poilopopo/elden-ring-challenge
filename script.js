@@ -1,56 +1,88 @@
+```javascript
 // ============================================================
 // ELDEN RING CHALLENGE
 // ============================================================
 
 
 // ============================================================
+// CHARGEMENT DES FICHIERS TXT
+// ============================================================
+
+async function loadItems(filename) {
+
+    try {
+
+        const response = await fetch(filename);
+
+        if (!response.ok) {
+            throw new Error(
+                `Impossible de charger ${filename}`
+            );
+        }
+
+        const text = await response.text();
+
+        return text
+            .split(/\r?\n/)
+            .map(line => line.trim())
+
+            // Ignore les lignes vides
+            .filter(line => line.length > 0)
+
+            // Ignore les commentaires commençant par #
+            .filter(line => !line.startsWith("#"))
+
+            .map(line => {
+
+                const parts = line.split("|");
+
+                const name =
+                    parts[0].trim();
+
+                let weight = 100;
+
+                if (
+                    parts.length > 1 &&
+                    parts[1].trim() !== ""
+                ) {
+
+                    const parsedWeight =
+                        Number(
+                            parts[1].trim()
+                        );
+
+                    if (
+                        Number.isFinite(parsedWeight) &&
+                        parsedWeight > 0
+                    ) {
+                        weight = parsedWeight;
+                    }
+                }
+
+                return {
+                    name: name,
+                    weight: weight
+                };
+
+            });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+
+    }
+}
+
+
+// ============================================================
 // DONNÉES
 // ============================================================
 
-const talismans = [
-
-    { name: "Talisman 1", weight: 100 },
-
-    { name: "Talisman 2", weight: 100 },
-
-    { name: "Talisman 3", weight: 100 },
-
-    { name: "Talisman 4", weight: 100 },
-
-    // Le petit démon
-    { name: "Daedicar's Woe", weight: 5 }
-
-];
-
-
-const armes = [
-
-    { name: "Arme 1", weight: 100 },
-
-    { name: "Arme 2", weight: 100 },
-
-    { name: "Arme 3", weight: 100 },
-
-    { name: "Arme 4", weight: 100 },
-
-    { name: "Arme 5", weight: 100 }
-
-];
-
-
-const objectifs = [
-
-    { name: "Objectif 1", weight: 100 },
-
-    { name: "Objectif 2", weight: 100 },
-
-    { name: "Objectif 3", weight: 100 },
-
-    { name: "Objectif 4", weight: 100 },
-
-    { name: "Objectif 5", weight: 100 }
-
-];
+let talismans = [];
+let armes = [];
+let objectifs = [];
 
 
 // ============================================================
@@ -60,50 +92,33 @@ const objectifs = [
 const wheels = {
 
     talisman: {
-
         canvas:
             document.getElementById(
                 "wheel-talisman"
             ),
-
         items: talismans,
-
         rotation: 0,
-
         spinning: false
-
     },
 
-
     arme: {
-
         canvas:
             document.getElementById(
                 "wheel-arme"
             ),
-
         items: armes,
-
         rotation: 0,
-
         spinning: false
-
     },
 
-
     objectif: {
-
         canvas:
             document.getElementById(
                 "wheel-objectif"
             ),
-
         items: objectifs,
-
         rotation: 0,
-
         spinning: false
-
     }
 
 };
@@ -116,50 +131,33 @@ const wheels = {
 const singleWheels = {
 
     talisman: {
-
         canvas:
             document.getElementById(
                 "single-wheel-talisman"
             ),
-
         items: talismans,
-
         rotation: 0,
-
         spinning: false
-
     },
 
-
     arme: {
-
         canvas:
             document.getElementById(
                 "single-wheel-arme"
             ),
-
         items: armes,
-
         rotation: 0,
-
         spinning: false
-
     },
 
-
     objectif: {
-
         canvas:
             document.getElementById(
                 "single-wheel-objectif"
             ),
-
         items: objectifs,
-
         rotation: 0,
-
         spinning: false
-
     }
 
 };
@@ -194,28 +192,21 @@ function chooseWeightedItem(items) {
             0
         );
 
-
     let random =
-        Math.random() * totalWeight;
-
+        Math.random() *
+        totalWeight;
 
     for (const item of items) {
 
         random -= item.weight;
 
-
         if (random <= 0) {
-
             return item;
-
         }
 
     }
 
-
-    return items[
-        items.length - 1
-    ];
+    return items[items.length - 1];
 
 }
 
@@ -228,40 +219,28 @@ function drawWheel(wheel) {
 
     const canvas = wheel.canvas;
 
-
     if (!canvas) {
-
         return;
-
     }
-
 
     const ctx =
         canvas.getContext("2d");
 
-
     const size =
         canvas.width;
-
 
     const center =
         size / 2;
 
-
     const radius =
         size / 2 - 8;
-
 
     const items =
         wheel.items;
 
-
     if (!items.length) {
-
         return;
-
     }
-
 
     ctx.clearRect(
         0,
@@ -270,29 +249,23 @@ function drawWheel(wheel) {
         size
     );
 
-
     const slice =
-        (Math.PI * 2) /
+        (
+            Math.PI * 2
+        ) /
         items.length;
 
-
     ctx.save();
-
 
     ctx.translate(
         center,
         center
     );
 
-
     ctx.rotate(
         wheel.rotation
     );
 
-
-    // --------------------------------------------------------
-    // SEGMENTS
-    // --------------------------------------------------------
 
     items.forEach(
         (item, index) => {
@@ -301,19 +274,21 @@ function drawWheel(wheel) {
                 index * slice -
                 Math.PI / 2;
 
-
             const endAngle =
-                startAngle + slice;
+                startAngle +
+                slice;
 
+
+            // ------------------------------------------------
+            // SEGMENT
+            // ------------------------------------------------
 
             ctx.beginPath();
-
 
             ctx.moveTo(
                 0,
                 0
             );
-
 
             ctx.arc(
                 0,
@@ -323,9 +298,7 @@ function drawWheel(wheel) {
                 endAngle
             );
 
-
             ctx.closePath();
-
 
             ctx.fillStyle =
                 segmentColors[
@@ -333,16 +306,12 @@ function drawWheel(wheel) {
                     segmentColors.length
                 ];
 
-
             ctx.fill();
-
 
             ctx.strokeStyle =
                 "#806c3e";
 
-
             ctx.lineWidth = 2;
-
 
             ctx.stroke();
 
@@ -353,22 +322,18 @@ function drawWheel(wheel) {
 
             ctx.save();
 
-
             const textAngle =
                 startAngle +
                 slice / 2;
-
 
             ctx.rotate(
                 textAngle
             );
 
-
             ctx.translate(
                 radius * 0.62,
                 0
             );
-
 
             ctx.rotate(
                 Math.PI / 2
@@ -377,32 +342,23 @@ function drawWheel(wheel) {
 
             let fontSize = 15;
 
-
             if (items.length > 15) {
-
                 fontSize = 11;
-
             }
 
-
             if (items.length > 25) {
-
                 fontSize = 8;
-
             }
 
 
             ctx.font =
                 `600 ${fontSize}px Cinzel, Georgia, serif`;
 
-
             ctx.fillStyle =
                 "#d8c28a";
 
-
             ctx.textAlign =
                 "center";
-
 
             ctx.textBaseline =
                 "middle";
@@ -427,7 +383,8 @@ function drawWheel(wheel) {
                     text.substring(
                         0,
                         maxCharacters - 1
-                    ) + "…";
+                    ) +
+                    "…";
 
             }
 
@@ -437,7 +394,6 @@ function drawWheel(wheel) {
                 0,
                 0
             );
-
 
             ctx.restore();
 
@@ -451,7 +407,6 @@ function drawWheel(wheel) {
 
     ctx.beginPath();
 
-
     ctx.arc(
         0,
         0,
@@ -460,20 +415,15 @@ function drawWheel(wheel) {
         Math.PI * 2
     );
 
-
     ctx.fillStyle =
         "#15130e";
 
-
     ctx.fill();
-
 
     ctx.strokeStyle =
         "#b99a52";
 
-
     ctx.lineWidth = 4;
-
 
     ctx.stroke();
 
@@ -481,18 +431,14 @@ function drawWheel(wheel) {
     ctx.font =
         "28px Georgia";
 
-
     ctx.fillStyle =
         "#c8a95c";
-
 
     ctx.textAlign =
         "center";
 
-
     ctx.textBaseline =
         "middle";
-
 
     ctx.fillText(
         "✦",
@@ -510,7 +456,6 @@ function drawWheel(wheel) {
 
     ctx.beginPath();
 
-
     ctx.arc(
         center,
         center,
@@ -519,13 +464,10 @@ function drawWheel(wheel) {
         Math.PI * 2
     );
 
-
     ctx.strokeStyle =
         "#b99a52";
 
-
     ctx.lineWidth = 5;
-
 
     ctx.stroke();
 
@@ -536,18 +478,102 @@ function drawWheel(wheel) {
 // INITIALISATION
 // ============================================================
 
-Object.values(wheels)
-    .forEach(
-        wheel =>
-            drawWheel(wheel)
+async function initialize() {
+
+    console.log(
+        "Chargement des listes..."
     );
 
 
-Object.values(singleWheels)
-    .forEach(
-        wheel =>
-            drawWheel(wheel)
+    const [
+        loadedTalismans,
+        loadedArmes,
+        loadedObjectifs
+    ] =
+        await Promise.all([
+
+            loadItems(
+                "talismans.txt"
+            ),
+
+            loadItems(
+                "armes.txt"
+            ),
+
+            loadItems(
+                "objectifs.txt"
+            )
+
+        ]);
+
+
+    talismans =
+        loadedTalismans;
+
+    armes =
+        loadedArmes;
+
+    objectifs =
+        loadedObjectifs;
+
+
+    // --------------------------------------------------------
+    // Mise à jour des roues
+    // --------------------------------------------------------
+
+    wheels.talisman.items =
+        talismans;
+
+    wheels.arme.items =
+        armes;
+
+    wheels.objectif.items =
+        objectifs;
+
+
+    singleWheels.talisman.items =
+        talismans;
+
+    singleWheels.arme.items =
+        armes;
+
+    singleWheels.objectif.items =
+        objectifs;
+
+
+    // --------------------------------------------------------
+    // Dessin initial
+    // --------------------------------------------------------
+
+    Object
+        .values(wheels)
+        .forEach(
+            wheel =>
+                drawWheel(wheel)
+        );
+
+
+    Object
+        .values(singleWheels)
+        .forEach(
+            wheel =>
+                drawWheel(wheel)
+        );
+
+
+    console.log(
+        `Talismans : ${talismans.length}`
     );
+
+    console.log(
+        `Armes : ${armes.length}`
+    );
+
+    console.log(
+        `Objectifs : ${objectifs.length}`
+    );
+
+}
 
 
 // ============================================================
@@ -567,36 +593,34 @@ document
                         tab.dataset.tab;
 
 
-                    // Désactiver tous les boutons
-
                     document
                         .querySelectorAll(".tab")
                         .forEach(
                             button =>
                                 button.classList
-                                    .remove("active")
+                                    .remove(
+                                        "active"
+                                    )
                         );
 
-
-                    // Activer celui choisi
 
                     tab.classList.add(
                         "active"
                     );
 
 
-                    // Masquer tous les contenus
-
                     document
-                        .querySelectorAll(".tab-content")
+                        .querySelectorAll(
+                            ".tab-content"
+                        )
                         .forEach(
                             content =>
                                 content.classList
-                                    .remove("active")
+                                    .remove(
+                                        "active"
+                                    )
                         );
 
-
-                    // Afficher le bon
 
                     const content =
                         document.getElementById(
@@ -632,14 +656,13 @@ function spinAll() {
 
 
     if (!button) {
-
         return;
-
     }
 
 
     if (
-        Object.values(wheels)
+        Object
+            .values(wheels)
             .some(
                 wheel =>
                     wheel.spinning
@@ -653,29 +676,24 @@ function spinAll() {
 
     button.disabled = true;
 
-
     button.textContent =
         "⚔ DESTIN EN COURS... ⚔";
 
-
-    // Même durée pour les trois.
-    // Elles finiront donc ensemble.
 
     spinWheel(
         "talisman",
         wheels
     );
 
-
     spinWheel(
         "arme",
         wheels
     );
 
-
     spinWheel(
         "objectif",
         wheels
+
     );
 
 }
@@ -696,7 +714,8 @@ function spinWheel(
 
     if (
         !wheel ||
-        wheel.spinning
+        wheel.spinning ||
+        !wheel.items.length
     ) {
 
         return;
@@ -706,10 +725,6 @@ function spinWheel(
 
     wheel.spinning = true;
 
-
-    // --------------------------------------------------------
-    // RESULTAT
-    // --------------------------------------------------------
 
     const selectedItem =
         chooseWeightedItem(
@@ -724,17 +739,16 @@ function spinWheel(
 
 
     const slice =
-        (Math.PI * 2) /
+        (
+            Math.PI * 2
+        ) /
         wheel.items.length;
 
 
-    // --------------------------------------------------------
-    // POSITION CIBLE
-    // --------------------------------------------------------
-
     const targetAngle =
         -(
-            selectedIndex * slice +
+            selectedIndex *
+            slice +
             slice / 2
         );
 
@@ -749,9 +763,11 @@ function spinWheel(
 
     const currentNormalized =
         (
-            current % fullTurn +
+            current %
+            fullTurn +
             fullTurn
-        ) % fullTurn;
+        ) %
+        fullTurn;
 
 
     let difference =
@@ -781,8 +797,8 @@ function spinWheel(
 
 
     // IMPORTANT :
-    // exactement la même durée
-    // pour les trois roues.
+    // Toutes les roues utilisent exactement
+    // la même durée.
 
     const duration =
         4300;
@@ -791,10 +807,6 @@ function spinWheel(
     const startTime =
         performance.now();
 
-
-    // --------------------------------------------------------
-    // ANIMATION
-    // --------------------------------------------------------
 
     function animate(now) {
 
@@ -808,12 +820,8 @@ function spinWheel(
             duration;
 
 
-        if (
-            progress > 1
-        ) {
-
+        if (progress > 1) {
             progress = 1;
-
         }
 
 
@@ -834,9 +842,7 @@ function spinWheel(
             eased;
 
 
-        drawWheel(
-            wheel
-        );
+        drawWheel(wheel);
 
 
         if (
@@ -856,9 +862,7 @@ function spinWheel(
             finalRotation;
 
 
-        drawWheel(
-            wheel
-        );
+        drawWheel(wheel);
 
 
         wheel.spinning =
@@ -874,7 +878,7 @@ function spinWheel(
 
 
         // ----------------------------------------------------
-        // CHALLENGE : réactiver quand tout est fini
+        // Si les 3 roues sont terminées
         // ----------------------------------------------------
 
         if (
@@ -883,17 +887,15 @@ function spinWheel(
         ) {
 
             const stillSpinning =
-                Object.values(
-                    wheels
-                ).some(
-                    wheel =>
-                        wheel.spinning
-                );
+                Object
+                    .values(wheels)
+                    .some(
+                        wheel =>
+                            wheel.spinning
+                    );
 
 
-            if (
-                !stillSpinning
-            ) {
+            if (!stillSpinning) {
 
                 const button =
                     document.getElementById(
@@ -950,7 +952,8 @@ function spinSingle(type) {
 
     if (button) {
 
-        button.disabled = true;
+        button.disabled =
+            true;
 
         button.textContent =
             "DESTIN...";
@@ -963,8 +966,6 @@ function spinSingle(type) {
         singleWheels
     );
 
-
-    // Surveillance de la fin
 
     const check =
         setInterval(
@@ -1021,9 +1022,7 @@ function showResult(
 
 
     if (!result) {
-
         return;
-
     }
 
 
@@ -1038,43 +1037,50 @@ function showResult(
 
 
     result.animate(
-
         [
+
             {
                 transform:
                     "scale(0.85)",
 
-                opacity: 0.3
-
+                opacity:
+                    0.3
             },
 
             {
                 transform:
                     "scale(1.08)",
 
-                opacity: 1
-
+                opacity:
+                    1
             },
 
             {
                 transform:
                     "scale(1)",
 
-                opacity: 1
-
+                opacity:
+                    1
             }
 
         ],
 
         {
-
-            duration: 500,
+            duration:
+                500,
 
             easing:
                 "ease-out"
-
         }
 
     );
 
 }
+
+
+// ============================================================
+// LANCEMENT
+// ============================================================
+
+initialize();
+```
