@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Elden Ring Challenge</title>
 
     <link rel="stylesheet" href="style.css">
@@ -10,8 +11,115 @@
 
 <body>
 
-    <h1>ELDEN RING CHALLENGE</h1>
+    <div class="page">
+
+        <header>
+            <div class="ornament">✦</div>
+
+            <h1>ELDEN RING</h1>
+            <h2>CHALLENGE RANDOM</h2>
+
+            <p class="subtitle">
+                Que la Grâce décide de votre destin...
+            </p>
+        </header>
+
+
+        <main class="wheels-container">
+
+            <!-- TALISMAN -->
+            <section class="wheel-card">
+
+                <h3>✦ TALISMAN ✦</h3>
+
+                <div class="wheel-wrapper">
+                    <div class="pointer"></div>
+
+                    <canvas id="wheel-talisman"
+                            width="500"
+                            height="500">
+                    </canvas>
+                </div>
+
+                <div class="result" id="result-talisman">
+                    <span class="result-label">DESTIN</span>
+                    <span class="result-name">—</span>
+                    <span class="result-rarity"></span>
+                </div>
+
+                <button onclick="spinWheel('talisman')">
+                    TOURNER
+                </button>
+
+            </section>
+
+
+            <!-- ARME -->
+            <section class="wheel-card">
+
+                <h3>✦ ARME ✦</h3>
+
+                <div class="wheel-wrapper">
+                    <div class="pointer"></div>
+
+                    <canvas id="wheel-arme"
+                            width="500"
+                            height="500">
+                    </canvas>
+                </div>
+
+                <div class="result" id="result-arme">
+                    <span class="result-label">DESTIN</span>
+                    <span class="result-name">—</span>
+                    <span class="result-rarity"></span>
+                </div>
+
+                <button onclick="spinWheel('arme')">
+                    TOURNER
+                </button>
+
+            </section>
+
+
+            <!-- OBJECTIF -->
+            <section class="wheel-card">
+
+                <h3>✦ OBJECTIF ✦</h3>
+
+                <div class="wheel-wrapper">
+                    <div class="pointer"></div>
+
+                    <canvas id="wheel-objectif"
+                            width="500"
+                            height="500">
+                    </canvas>
+                </div>
+
+                <div class="result" id="result-objectif">
+                    <span class="result-label">DESTIN</span>
+                    <span class="result-name">—</span>
+                    <span class="result-rarity"></span>
+                </div>
+
+                <button onclick="spinWheel('objectif')">
+                    TOURNER
+                </button>
+
+            </section>
+
+        </main>
+
+
+        <footer>
+            <span>—</span>
+            ELDEN RING CHALLENGE
+            <span>—</span>
+        </footer>
+
+    </div>
+
 
     <script src="script.js"></script>
+
 </body>
 </html>
