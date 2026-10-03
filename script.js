@@ -843,7 +843,10 @@ function createSpinSequence(
         return sequence;
     }
 
-    // Nombre de cases parcourues pendant l'animation
+    // --------------------------------------------------------
+    // PHASE DE SPIN
+    // --------------------------------------------------------
+
     const spinCount =
         Math.max(
             35,
@@ -854,10 +857,6 @@ function createSpinSequence(
                 )
             )
         );
-
-    // --------------------------------------------------------
-    // ANIMATION : on fait défiler des éléments aléatoires
-    // --------------------------------------------------------
 
     for (
         let i = 0;
@@ -876,10 +875,19 @@ function createSpinSequence(
     }
 
     // --------------------------------------------------------
-    // FIN DE L'ANIMATION
+    // FIN DU SPIN
     //
-    // On construit les 5 cases finales directement
-    // depuis l'ordre du fichier TXT.
+    // On veut :
+    //
+    // -2
+    // -1
+    // RESULTAT
+    // +1
+    // +2
+    //
+    // mais on ajoute aussi une case de sécurité
+    // de chaque côté pour que l'animation puisse
+    // ralentir proprement.
     // --------------------------------------------------------
 
     const selectedIndex =
@@ -887,8 +895,16 @@ function createSpinSequence(
             selectedItem
         );
 
-    // Deux éléments AVANT
-    const previous2 =
+    const before3 =
+        items[
+            (
+                selectedIndex - 3 +
+                items.length
+            ) %
+            items.length
+        ];
+
+    const before2 =
         items[
             (
                 selectedIndex - 2 +
@@ -897,7 +913,7 @@ function createSpinSequence(
             items.length
         ];
 
-    const previous1 =
+    const before1 =
         items[
             (
                 selectedIndex - 1 +
@@ -906,8 +922,7 @@ function createSpinSequence(
             items.length
         ];
 
-    // Deux éléments APRÈS
-    const next1 =
+    const after1 =
         items[
             (
                 selectedIndex + 1
@@ -915,7 +930,7 @@ function createSpinSequence(
             items.length
         ];
 
-    const next2 =
+    const after2 =
         items[
             (
                 selectedIndex + 2
@@ -923,16 +938,24 @@ function createSpinSequence(
             items.length
         ];
 
-    // --------------------------------------------------------
-    // On ajoute la séquence finale
-    // --------------------------------------------------------
+    const after3 =
+        items[
+            (
+                selectedIndex + 3
+            ) %
+            items.length
+        ];
 
     sequence.push(
-        previous2
+        before3
     );
 
     sequence.push(
-        previous1
+        before2
+    );
+
+    sequence.push(
+        before1
     );
 
     sequence.push(
@@ -940,16 +963,19 @@ function createSpinSequence(
     );
 
     sequence.push(
-        next1
+        after1
     );
 
     sequence.push(
-        next2
+        after2
+    );
+
+    sequence.push(
+        after3
     );
 
     return sequence;
 }
-
 
 // ============================================================
 // ANIMATION MACHINE A SOUS
@@ -1051,7 +1077,7 @@ function spinSlotMachine(
 
 
         const selectedIndex =
-            sequence.length - 3;
+            sequence.length - 4;
         
         const totalDistance =
             selectedIndex *
@@ -1399,33 +1425,36 @@ function getInitialItems(items) {
         !items ||
         !items.length
     ) {
-
         return [];
-
     }
-
 
     const result = [];
 
+    // Point de départ totalement aléatoire
+    const startIndex =
+        Math.floor(
+            Math.random() *
+            items.length
+        );
 
+    // 5 éléments consécutifs
+    // avec boucle sur le fichier
     for (
         let i = 0;
         i < 5;
         i++
     ) {
-
         result.push(
             items[
-                i %
+                (
+                    startIndex + i
+                ) %
                 items.length
             ]
         );
-
     }
 
-
     return result;
-
 }
 
 
