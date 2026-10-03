@@ -1,114 +1,377 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Elden Ring Challenge</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
 <div class="page">
 
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
     <header>
+
         <div class="ornament">✦</div>
 
         <h1>ELDEN RING</h1>
+
         <h2>CHALLENGE RANDOM</h2>
 
         <p class="subtitle">
             Que la Grâce décide de votre destin...
         </p>
+
     </header>
 
 
-    <main class="wheels-container">
+    <!-- ================================================= -->
+    <!-- NAVIGATION -->
+    <!-- ================================================= -->
 
-        <!-- TALISMAN -->
-        <section class="wheel-card">
+    <nav class="tabs">
+
+        <button
+            class="tab active"
+            data-tab="challenge"
+        >
+            ⚔ CHALLENGE
+        </button>
+
+        <button
+            class="tab"
+            data-tab="talisman"
+        >
+            ✦ TALISMAN
+        </button>
+
+        <button
+            class="tab"
+            data-tab="arme"
+        >
+            ⚔ ARME
+        </button>
+
+        <button
+            class="tab"
+            data-tab="objectif"
+        >
+            🎯 OBJECTIF
+        </button>
+
+    </nav>
+
+
+    <!-- ================================================= -->
+    <!-- ONGLET CHALLENGE -->
+    <!-- ================================================= -->
+
+    <main
+        id="tab-challenge"
+        class="tab-content active"
+    >
+
+        <div class="wheels-container">
+
+
+            <!-- TALISMAN -->
+
+            <section class="wheel-card">
+
+                <h3>✦ TALISMAN ✦</h3>
+
+                <div class="wheel-wrapper">
+
+                    <div class="pointer"></div>
+
+                    <canvas
+                        id="wheel-talisman"
+                        width="500"
+                        height="500"
+                    ></canvas>
+
+                </div>
+
+
+                <div
+                    class="result"
+                    id="result-talisman"
+                >
+
+                    <span class="result-name">
+                        —
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- ARME -->
+
+            <section class="wheel-card">
+
+                <h3>✦ ARME ✦</h3>
+
+                <div class="wheel-wrapper">
+
+                    <div class="pointer"></div>
+
+                    <canvas
+                        id="wheel-arme"
+                        width="500"
+                        height="500"
+                    ></canvas>
+
+                </div>
+
+
+                <div
+                    class="result"
+                    id="result-arme"
+                >
+
+                    <span class="result-name">
+                        —
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- OBJECTIF -->
+
+            <section class="wheel-card">
+
+                <h3>✦ OBJECTIF ✦</h3>
+
+                <div class="wheel-wrapper">
+
+                    <div class="pointer"></div>
+
+                    <canvas
+                        id="wheel-objectif"
+                        width="500"
+                        height="500"
+                    ></canvas>
+
+                </div>
+
+
+                <div
+                    class="result"
+                    id="result-objectif"
+                >
+
+                    <span class="result-name">
+                        —
+                    </span>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <div class="spin-container">
+
+            <button
+                id="spin-all"
+                onclick="spinAll()"
+            >
+                ⚔ TOURNER LES ROUES ⚔
+            </button>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================================================= -->
+    <!-- ONGLET TALISMAN -->
+    <!-- ================================================= -->
+
+    <main
+        id="tab-talisman"
+        class="tab-content single-wheel"
+    >
+
+        <section class="single-wheel-card">
 
             <h3>✦ TALISMAN ✦</h3>
 
-            <div class="wheel-wrapper">
+            <div class="single-wheel-wrapper">
+
                 <div class="pointer"></div>
 
                 <canvas
-                    id="wheel-talisman"
-                    width="500"
-                    height="500">
-                </canvas>
+                    id="single-wheel-talisman"
+                    width="600"
+                    height="600"
+                ></canvas>
+
             </div>
 
-            <div class="result" id="result-talisman">
-                <span class="result-name">—</span>
+
+            <div
+                class="result"
+                id="single-result-talisman"
+            >
+
+                <span class="result-name">
+                    —
+                </span>
+
             </div>
 
-        </section>
 
-
-        <!-- ARME -->
-        <section class="wheel-card">
-
-            <h3>✦ ARME ✦</h3>
-
-            <div class="wheel-wrapper">
-                <div class="pointer"></div>
-
-                <canvas
-                    id="wheel-arme"
-                    width="500"
-                    height="500">
-                </canvas>
-            </div>
-
-            <div class="result" id="result-arme">
-                <span class="result-name">—</span>
-            </div>
-
-        </section>
-
-
-        <!-- OBJECTIF -->
-        <section class="wheel-card">
-
-            <h3>✦ OBJECTIF ✦</h3>
-
-            <div class="wheel-wrapper">
-                <div class="pointer"></div>
-
-                <canvas
-                    id="wheel-objectif"
-                    width="500"
-                    height="500">
-                </canvas>
-            </div>
-
-            <div class="result" id="result-objectif">
-                <span class="result-name">—</span>
-            </div>
+            <button
+                class="single-spin"
+                onclick="spinSingle('talisman')"
+            >
+                ✦ TOURNER ✦
+            </button>
 
         </section>
 
     </main>
 
 
-    <div class="spin-container">
+    <!-- ================================================= -->
+    <!-- ONGLET ARME -->
+    <!-- ================================================= -->
 
-        <button id="spin-all" onclick="spinAll()">
-            ⚔ TOURNER LES TROIS ROUES ⚔
-        </button>
+    <main
+        id="tab-arme"
+        class="tab-content single-wheel"
+    >
 
-    </div>
+        <section class="single-wheel-card">
 
+            <h3>✦ ARME ✦</h3>
+
+            <div class="single-wheel-wrapper">
+
+                <div class="pointer"></div>
+
+                <canvas
+                    id="single-wheel-arme"
+                    width="600"
+                    height="600"
+                ></canvas>
+
+            </div>
+
+
+            <div
+                class="result"
+                id="single-result-arme"
+            >
+
+                <span class="result-name">
+                    —
+                </span>
+
+            </div>
+
+
+            <button
+                class="single-spin"
+                onclick="spinSingle('arme')"
+            >
+                ✦ TOURNER ✦
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================================================= -->
+    <!-- ONGLET OBJECTIF -->
+    <!-- ================================================= -->
+
+    <main
+        id="tab-objectif"
+        class="tab-content single-wheel"
+    >
+
+        <section class="single-wheel-card">
+
+            <h3>✦ OBJECTIF ✦</h3>
+
+            <div class="single-wheel-wrapper">
+
+                <div class="pointer"></div>
+
+                <canvas
+                    id="single-wheel-objectif"
+                    width="600"
+                    height="600"
+                ></canvas>
+
+            </div>
+
+
+            <div
+                class="result"
+                id="single-result-objectif"
+            >
+
+                <span class="result-name">
+                    —
+                </span>
+
+            </div>
+
+
+            <button
+                class="single-spin"
+                onclick="spinSingle('objectif')"
+            >
+                ✦ TOURNER ✦
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================================================= -->
+    <!-- FOOTER -->
+    <!-- ================================================= -->
 
     <footer>
+
         <span>—</span>
+
         ELDEN RING CHALLENGE
+
         <span>—</span>
+
     </footer>
+
 
 </div>
 
@@ -116,4 +379,5 @@
 <script src="script.js"></script>
 
 </body>
+
 </html>
