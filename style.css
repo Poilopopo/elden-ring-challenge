@@ -11,20 +11,14 @@
     box-sizing: border-box;
 }
 
-
 html,
 body {
-
     margin: 0;
-
     width: 100%;
     height: 100%;
-
 }
 
-
 body {
-
     background:
         radial-gradient(
             circle at 50% 0%,
@@ -41,18 +35,15 @@ body {
         serif;
 
     overflow: hidden;
-
 }
 
 
 /* Vignette */
 
 body::before {
-
     content: "";
 
     position: fixed;
-
     inset: 0;
 
     pointer-events: none;
@@ -65,7 +56,6 @@ body::before {
         );
 
     z-index: 0;
-
 }
 
 
@@ -74,13 +64,10 @@ body::before {
 /* ========================================================= */
 
 .page {
-
     position: relative;
-
     z-index: 1;
 
     width: 100%;
-
     height: 100vh;
 
     max-width: 1800px;
@@ -88,12 +75,10 @@ body::before {
     margin: auto;
 
     padding:
-        10px 20px 8px;
+        14px 20px 8px;
 
     display: flex;
-
     flex-direction: column;
-
 }
 
 
@@ -102,28 +87,29 @@ body::before {
 /* ========================================================= */
 
 header {
-
     flex-shrink: 0;
 
     text-align: center;
 
+    padding-top: 4px;
 }
 
 
-.ornament {
+/* Le losange est maintenant bien séparé du titre */
 
+.ornament {
     color: #c8a95c;
 
     font-size: 17px;
 
     line-height: 1;
 
+    margin-bottom: 7px;
 }
 
 
 h1 {
-
-    margin: 2px 0 0;
+    margin: 0;
 
     font-size:
         clamp(28px, 4.5vh, 52px);
@@ -142,13 +128,11 @@ h1 {
         rgba(210, 174, 85, 0.25),
 
         0 3px 5px black;
-
 }
 
 
 h2 {
-
-    margin: 5px 0 4px;
+    margin: 6px 0 5px;
 
     font-size:
         clamp(12px, 1.8vh, 19px);
@@ -160,12 +144,10 @@ h2 {
     color: #9f8751;
 
     font-weight: 400;
-
 }
 
 
 .subtitle {
-
     margin: 0;
 
     color: #77705f;
@@ -174,7 +156,6 @@ h2 {
 
     font-size:
         clamp(9px, 1.4vh, 13px);
-
 }
 
 
@@ -183,26 +164,23 @@ h2 {
 /* ========================================================= */
 
 .tabs {
-
     flex-shrink: 0;
 
     display: flex;
 
     justify-content: center;
-
     align-items: center;
 
     gap: 6px;
 
     margin:
-        9px auto 10px;
-
+        10px auto 10px;
 }
 
 
 .tab {
-
-    border: 1px solid #51462d;
+    border:
+        1px solid #51462d;
 
     background:
         linear-gradient(
@@ -229,24 +207,22 @@ h2 {
 
     transition:
         0.2s ease;
-
 }
 
 
 .tab:hover {
-
     color: #c8a95c;
 
-    border-color: #806c3e;
-
+    border-color:
+        #806c3e;
 }
 
 
 .tab.active {
-
     color: #e0ca91;
 
-    border-color: #a98d4e;
+    border-color:
+        #a98d4e;
 
     background:
         linear-gradient(
@@ -258,29 +234,23 @@ h2 {
     box-shadow:
         0 0 12px
         rgba(200, 169, 92, 0.12);
-
 }
 
 
 /* ========================================================= */
-/* CONTENU DES ONGLETS */
+/* CONTENU */
 /* ========================================================= */
 
 .tab-content {
-
     display: none;
 
     flex: 1;
 
     min-height: 0;
-
 }
 
-
 .tab-content.active {
-
     display: flex;
-
 }
 
 
@@ -289,33 +259,36 @@ h2 {
 /* ========================================================= */
 
 #tab-challenge {
-
     flex-direction: column;
-
 }
 
 
 .wheels-container {
-
     flex: 1;
 
     min-height: 0;
 
+    width: 100%;
+
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(3, minmax(0, 1fr));
 
     gap: 18px;
 
     align-items: center;
 
+    justify-items: center;
 }
 
 
 .wheel-card {
-
     position: relative;
+
+    width: 100%;
+
+    max-width: 560px;
 
     min-width: 0;
 
@@ -340,13 +313,11 @@ h2 {
         rgba(0, 0, 0, 0.5);
 
     text-align: center;
-
 }
 
 
 .wheel-card::before,
 .wheel-card::after {
-
     content: "✦";
 
     position: absolute;
@@ -356,7 +327,6 @@ h2 {
     color: #77643b;
 
     font-size: 12px;
-
 }
 
 
@@ -371,7 +341,6 @@ h2 {
 
 
 h3 {
-
     margin:
         0 0 5px;
 
@@ -385,7 +354,6 @@ h3 {
     color: #c8a95c;
 
     font-weight: 500;
-
 }
 
 
@@ -394,7 +362,6 @@ h3 {
 /* ========================================================= */
 
 .wheel-wrapper {
-
     position: relative;
 
     width:
@@ -402,17 +369,15 @@ h3 {
 
     aspect-ratio: 1;
 
-    margin: auto;
-
+    margin:
+        0 auto;
 }
 
 
 canvas {
-
     display: block;
 
     width: 100%;
-
     height: 100%;
 
     border-radius: 50%;
@@ -422,12 +387,10 @@ canvas {
             0 8px 15px
             rgba(0, 0, 0, 0.8)
         );
-
 }
 
 
 .pointer {
-
     position: absolute;
 
     z-index: 10;
@@ -455,7 +418,6 @@ canvas {
         drop-shadow(
             0 2px 3px black
         );
-
 }
 
 
@@ -464,7 +426,6 @@ canvas {
 /* ========================================================= */
 
 .result {
-
     height: 38px;
 
     margin:
@@ -475,7 +436,6 @@ canvas {
     display: flex;
 
     justify-content: center;
-
     align-items: center;
 
     border-top:
@@ -483,12 +443,10 @@ canvas {
 
     border-bottom:
         1px solid #403824;
-
 }
 
 
 .result-name {
-
     font-size:
         clamp(12px, 1.7vh, 17px);
 
@@ -497,36 +455,33 @@ canvas {
     font-weight: 600;
 
     line-height: 1.1;
-
 }
 
 
 /* ========================================================= */
-/* BOUTON CHALLENGE */
+/* BOUTONS */
 /* ========================================================= */
 
 .spin-container {
-
     flex-shrink: 0;
 
     display: flex;
 
     justify-content: center;
-
     align-items: center;
 
     padding-top: 7px;
-
 }
 
 
 #spin-all,
 .single-spin {
-
     display: block;
 
     width:
         min(420px, 90vw);
+
+    max-width: 100%;
 
     padding:
         10px 25px;
@@ -556,13 +511,11 @@ canvas {
 
     transition:
         0.2s ease;
-
 }
 
 
 #spin-all:hover,
 .single-spin:hover {
-
     background:
         linear-gradient(
             180deg,
@@ -576,48 +529,40 @@ canvas {
     box-shadow:
         0 0 18px
         rgba(200, 169, 92, 0.2);
-
 }
 
 
 #spin-all:active,
 .single-spin:active {
-
     transform:
         scale(0.97);
-
 }
 
 
 #spin-all:disabled,
 .single-spin:disabled {
-
     opacity: 0.55;
 
     cursor: not-allowed;
-
 }
 
 
 /* ========================================================= */
-/* ONGLETS ROUE UNIQUE */
+/* ROUES SOLO */
 /* ========================================================= */
 
 .single-wheel {
-
     justify-content: center;
-
     align-items: center;
-
 }
 
 
 .single-wheel-card {
-
     width:
         min(650px, 80vh);
 
-    max-width: 100%;
+    max-width:
+        100%;
 
     padding:
         12px 20px 15px;
@@ -640,51 +585,46 @@ canvas {
 
         0 10px 35px
         rgba(0, 0, 0, 0.5);
-
 }
 
 
 .single-wheel-wrapper {
-
     position: relative;
 
     width:
         min(60vh, 580px);
 
-    max-width: 100%;
+    max-width:
+        100%;
 
     aspect-ratio: 1;
 
     margin:
         0 auto 6px;
-
 }
 
 
 .single-wheel-wrapper canvas {
-
     width: 100%;
     height: 100%;
-
 }
 
 
 .single-wheel-card .result {
-
     width:
         min(500px, 90%);
 
     margin:
         7px auto 10px;
-
 }
 
 
 .single-spin {
+    width:
+        min(360px, 90%);
 
     margin:
         0 auto;
-
 }
 
 
@@ -693,7 +633,6 @@ canvas {
 /* ========================================================= */
 
 footer {
-
     flex-shrink: 0;
 
     text-align: center;
@@ -705,16 +644,13 @@ footer {
     font-size: 8px;
 
     letter-spacing: 4px;
-
 }
 
 
 footer span {
-
     margin: 0 8px;
 
     color: #806c3e;
-
 }
 
 
@@ -727,13 +663,20 @@ footer span {
 and (max-height: 850px) {
 
     .page {
-        padding-top: 5px;
+        padding-top: 7px;
     }
 
+
+    .ornament {
+        margin-bottom: 5px;
+    }
+
+
     .tabs {
-        margin-top: 6px;
+        margin-top: 7px;
         margin-bottom: 6px;
     }
+
 
     .wheel-wrapper {
         width:
@@ -744,7 +687,7 @@ and (max-height: 850px) {
 
 
 /* ========================================================= */
-/* TELEPHONE / PETITS ECRANS */
+/* MOBILE */
 /* ========================================================= */
 
 @media (max-width: 1000px) {
@@ -755,6 +698,7 @@ and (max-height: 850px) {
 
 
     .page {
+        width: 100%;
 
         height: auto;
 
@@ -762,7 +706,16 @@ and (max-height: 850px) {
 
         padding:
             15px 12px;
+    }
 
+
+    header {
+        padding-top: 5px;
+    }
+
+
+    .ornament {
+        margin-bottom: 8px;
     }
 
 
@@ -783,7 +736,7 @@ and (max-height: 850px) {
         flex:
             1 1 calc(50% - 6px);
 
-        min-width: 130px;
+        min-width: 0;
 
     }
 
@@ -797,36 +750,32 @@ and (max-height: 850px) {
     }
 
 
-    #tab-challenge {
-
-        display: none;
-
-    }
-
-
-    #tab-challenge.active {
-
-        display: flex;
-
-    }
-
+    /* ----------------------------------------------------- */
+    /* LES 3 ROUES */
+    /* ----------------------------------------------------- */
 
     .wheels-container {
 
-        width: 100%;
+        display: flex;
 
-        grid-template-columns: 1fr;
-
-        gap: 18px;
+        flex-direction: column;
 
         align-items: center;
+
+        width: 100%;
+
+        gap: 18px;
 
     }
 
 
     .wheel-card {
 
-        width: 100%;
+        width:
+            min(100%, 500px);
+
+        margin:
+            0 auto;
 
         display: flex;
 
@@ -840,7 +789,10 @@ and (max-height: 850px) {
     .wheel-wrapper {
 
         width:
-            min(90vw, 430px);
+            min(
+                calc(100vw - 50px),
+                430px
+            );
 
         margin:
             0 auto;
@@ -852,15 +804,38 @@ and (max-height: 850px) {
 
         width: 90%;
 
+        margin-left: auto;
+        margin-right: auto;
+
     }
 
 
     .spin-container {
 
+        width: 100%;
+
         margin-top: 12px;
+
+        padding-left: 0;
+        padding-right: 0;
 
     }
 
+
+    #spin-all {
+
+        width:
+            min(
+                100%,
+                420px
+            );
+
+    }
+
+
+    /* ----------------------------------------------------- */
+    /* ROUES SOLO */
+    /* ----------------------------------------------------- */
 
     .single-wheel {
 
@@ -871,7 +846,17 @@ and (max-height: 850px) {
 
     .single-wheel-card {
 
-        width: 100%;
+        width:
+            min(
+                100%,
+                600px
+            );
+
+        margin:
+            0 auto;
+
+        padding-left: 12px;
+        padding-right: 12px;
 
     }
 
@@ -879,34 +864,66 @@ and (max-height: 850px) {
     .single-wheel-wrapper {
 
         width:
-            min(90vw, 580px);
+            min(
+                calc(100vw - 50px),
+                580px
+            );
+
+        margin-left: auto;
+        margin-right: auto;
+
+    }
+
+
+    .single-wheel-card .result {
+
+        width: 90%;
+
+        margin-left: auto;
+        margin-right: auto;
+
+    }
+
+
+    .single-spin {
+
+        width:
+            min(
+                90%,
+                360px
+            );
+
+        max-width: 100%;
+
+        margin:
+            0 auto;
 
     }
 
 
     footer {
-
         margin-top: 15px;
-
     }
 
 }
 
 
 /* ========================================================= */
-/* TELEPHONE TRES PETIT */
+/* PETIT TELEPHONE */
 /* ========================================================= */
 
 @media (max-width: 500px) {
 
     h1 {
         font-size: 29px;
+
         letter-spacing: 5px;
     }
 
 
     h2 {
         font-size: 12px;
+
         letter-spacing: 4px;
     }
 
@@ -917,15 +934,27 @@ and (max-height: 850px) {
 
 
     .tab {
-
         font-size: 9px;
 
         letter-spacing: 1px;
 
         padding:
             8px 6px;
+    }
 
-        min-width: 0;
+
+    .wheel-wrapper {
+
+        width:
+            calc(100vw - 45px);
+
+    }
+
+
+    .single-wheel-wrapper {
+
+        width:
+            calc(100vw - 45px);
 
     }
 
@@ -933,6 +962,13 @@ and (max-height: 850px) {
     #spin-all {
 
         width: 100%;
+
+    }
+
+
+    .single-spin {
+
+        width: 90%;
 
     }
 
