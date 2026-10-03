@@ -15,31 +15,45 @@ async function loadItems(filename) {
         const response = await fetch(filename);
 
         if (!response.ok) {
+
             throw new Error(
-                `Impossible de charger ${filename}`
+                "Impossible de charger " + filename
             );
+
         }
 
         const text = await response.text();
 
         return text
             .split(/\r?\n/)
-            .map(line => line.trim())
+            .map(function(line) {
+                return line.trim();
+            })
 
             // Ignore les lignes vides
-            .filter(line => line.length > 0)
+            .filter(function(line) {
+                return line.length > 0;
+            })
 
-            // Ignore les commentaires commençant par #
-            .filter(line => !line.startsWith("#"))
+            // Ignore les commentaires
+            .filter(function(line) {
+                return !line.startsWith("#");
+            })
 
-            .map(line => {
+            .map(function(line) {
 
-                const parts = line.split("|");
+                const parts =
+                    line.split("|");
 
                 const name =
                     parts[0].trim();
 
                 let weight = 100;
+
+
+                // ------------------------------------------------
+                // POIDS
+                // ------------------------------------------------
 
                 if (
                     parts.length > 1 &&
@@ -55,9 +69,14 @@ async function loadItems(filename) {
                         Number.isFinite(parsedWeight) &&
                         parsedWeight > 0
                     ) {
-                        weight = parsedWeight;
+
+                        weight =
+                            parsedWeight;
+
                     }
+
                 }
+
 
                 return {
                     name: name,
@@ -66,13 +85,19 @@ async function loadItems(filename) {
 
             });
 
-    } catch (error) {
+    }
 
-        console.error(error);
+    catch (error) {
+
+        console.error(
+            "Erreur avec " + filename + ":",
+            error
+        );
 
         return [];
 
     }
+
 }
 
 
@@ -92,33 +117,50 @@ let objectifs = [];
 const wheels = {
 
     talisman: {
+
         canvas:
             document.getElementById(
                 "wheel-talisman"
             ),
+
         items: talismans,
+
         rotation: 0,
+
         spinning: false
+
     },
 
+
     arme: {
+
         canvas:
             document.getElementById(
                 "wheel-arme"
             ),
+
         items: armes,
+
         rotation: 0,
+
         spinning: false
+
     },
 
+
     objectif: {
+
         canvas:
             document.getElementById(
                 "wheel-objectif"
             ),
+
         items: objectifs,
+
         rotation: 0,
+
         spinning: false
+
     }
 
 };
@@ -131,33 +173,50 @@ const wheels = {
 const singleWheels = {
 
     talisman: {
+
         canvas:
             document.getElementById(
                 "single-wheel-talisman"
             ),
+
         items: talismans,
+
         rotation: 0,
+
         spinning: false
+
     },
 
+
     arme: {
+
         canvas:
             document.getElementById(
                 "single-wheel-arme"
             ),
+
         items: armes,
+
         rotation: 0,
+
         spinning: false
+
     },
 
+
     objectif: {
+
         canvas:
             document.getElementById(
                 "single-wheel-objectif"
             ),
+
         items: objectifs,
+
         rotation: 0,
+
         spinning: false
+
     }
 
 };
@@ -187,60 +246,85 @@ function chooseWeightedItem(items) {
 
     const totalWeight =
         items.reduce(
-            (total, item) =>
-                total + item.weight,
+            function(total, item) {
+
+                return total + item.weight;
+
+            },
             0
         );
+
 
     let random =
         Math.random() *
         totalWeight;
 
-    for (const item of items) {
 
-        random -= item.weight;
+    for (
+        const item of items
+    ) {
 
-        if (random <= 0) {
+        random -=
+            item.weight;
+
+
+        if (
+            random <= 0
+        ) {
+
             return item;
+
         }
 
     }
 
-    return items[items.length - 1];
+
+    return items[
+        items.length - 1
+    ];
 
 }
 
 
 // ============================================================
-// DESSIN
+// DESSIN DES ROUES
 // ============================================================
 
 function drawWheel(wheel) {
 
-    const canvas = wheel.canvas;
+    const canvas =
+        wheel.canvas;
+
 
     if (!canvas) {
         return;
     }
 
+
     const ctx =
         canvas.getContext("2d");
+
 
     const size =
         canvas.width;
 
+
     const center =
         size / 2;
+
 
     const radius =
         size / 2 - 8;
 
+
     const items =
         wheel.items;
 
-    if (!items.length) {
+
+    if (!items || !items.length) {
         return;
     }
+
 
     ctx.clearRect(
         0,
@@ -249,18 +333,22 @@ function drawWheel(wheel) {
         size
     );
 
+
     const slice =
         (
             Math.PI * 2
         ) /
         items.length;
 
+
     ctx.save();
+
 
     ctx.translate(
         center,
         center
     );
+
 
     ctx.rotate(
         wheel.rotation
@@ -268,11 +356,12 @@ function drawWheel(wheel) {
 
 
     items.forEach(
-        (item, index) => {
+        function(item, index) {
 
             const startAngle =
                 index * slice -
                 Math.PI / 2;
+
 
             const endAngle =
                 startAngle +
@@ -285,10 +374,12 @@ function drawWheel(wheel) {
 
             ctx.beginPath();
 
+
             ctx.moveTo(
                 0,
                 0
             );
+
 
             ctx.arc(
                 0,
@@ -298,7 +389,9 @@ function drawWheel(wheel) {
                 endAngle
             );
 
+
             ctx.closePath();
+
 
             ctx.fillStyle =
                 segmentColors[
@@ -306,12 +399,16 @@ function drawWheel(wheel) {
                     segmentColors.length
                 ];
 
+
             ctx.fill();
+
 
             ctx.strokeStyle =
                 "#806c3e";
 
+
             ctx.lineWidth = 2;
+
 
             ctx.stroke();
 
@@ -322,18 +419,22 @@ function drawWheel(wheel) {
 
             ctx.save();
 
+
             const textAngle =
                 startAngle +
                 slice / 2;
+
 
             ctx.rotate(
                 textAngle
             );
 
+
             ctx.translate(
                 radius * 0.62,
                 0
             );
+
 
             ctx.rotate(
                 Math.PI / 2
@@ -342,23 +443,38 @@ function drawWheel(wheel) {
 
             let fontSize = 15;
 
-            if (items.length > 15) {
+
+            if (
+                items.length > 15
+            ) {
+
                 fontSize = 11;
+
             }
 
-            if (items.length > 25) {
+
+            if (
+                items.length > 25
+            ) {
+
                 fontSize = 8;
+
             }
 
 
             ctx.font =
-                `600 ${fontSize}px Cinzel, Georgia, serif`;
+                "600 " +
+                fontSize +
+                "px Cinzel, Georgia, serif";
+
 
             ctx.fillStyle =
                 "#d8c28a";
 
+
             ctx.textAlign =
                 "center";
+
 
             ctx.textBaseline =
                 "middle";
@@ -395,6 +511,7 @@ function drawWheel(wheel) {
                 0
             );
 
+
             ctx.restore();
 
         }
@@ -407,6 +524,7 @@ function drawWheel(wheel) {
 
     ctx.beginPath();
 
+
     ctx.arc(
         0,
         0,
@@ -415,15 +533,20 @@ function drawWheel(wheel) {
         Math.PI * 2
     );
 
+
     ctx.fillStyle =
         "#15130e";
 
+
     ctx.fill();
+
 
     ctx.strokeStyle =
         "#b99a52";
 
+
     ctx.lineWidth = 4;
+
 
     ctx.stroke();
 
@@ -431,14 +554,18 @@ function drawWheel(wheel) {
     ctx.font =
         "28px Georgia";
 
+
     ctx.fillStyle =
         "#c8a95c";
+
 
     ctx.textAlign =
         "center";
 
+
     ctx.textBaseline =
         "middle";
+
 
     ctx.fillText(
         "✦",
@@ -451,10 +578,11 @@ function drawWheel(wheel) {
 
 
     // --------------------------------------------------------
-    // BORDURE
+    // BORDURE EXTÉRIEURE
     // --------------------------------------------------------
 
     ctx.beginPath();
+
 
     ctx.arc(
         center,
@@ -464,10 +592,13 @@ function drawWheel(wheel) {
         Math.PI * 2
     );
 
+
     ctx.strokeStyle =
         "#b99a52";
 
+
     ctx.lineWidth = 5;
+
 
     ctx.stroke();
 
@@ -481,15 +612,11 @@ function drawWheel(wheel) {
 async function initialize() {
 
     console.log(
-        "Chargement des listes..."
+        "Chargement des listes Elden Ring..."
     );
 
 
-    const [
-        loadedTalismans,
-        loadedArmes,
-        loadedObjectifs
-    ] =
+    const results =
         await Promise.all([
 
             loadItems(
@@ -508,13 +635,15 @@ async function initialize() {
 
 
     talismans =
-        loadedTalismans;
+        results[0];
+
 
     armes =
-        loadedArmes;
+        results[1];
+
 
     objectifs =
-        loadedObjectifs;
+        results[2];
 
 
     // --------------------------------------------------------
@@ -524,8 +653,10 @@ async function initialize() {
     wheels.talisman.items =
         talismans;
 
+
     wheels.arme.items =
         armes;
+
 
     wheels.objectif.items =
         objectifs;
@@ -534,43 +665,56 @@ async function initialize() {
     singleWheels.talisman.items =
         talismans;
 
+
     singleWheels.arme.items =
         armes;
+
 
     singleWheels.objectif.items =
         objectifs;
 
 
     // --------------------------------------------------------
-    // Dessin initial
+    // Dessin
     // --------------------------------------------------------
 
     Object
         .values(wheels)
         .forEach(
-            wheel =>
-                drawWheel(wheel)
+            function(wheel) {
+
+                drawWheel(wheel);
+
+            }
         );
 
 
     Object
         .values(singleWheels)
         .forEach(
-            wheel =>
-                drawWheel(wheel)
+            function(wheel) {
+
+                drawWheel(wheel);
+
+            }
         );
 
 
     console.log(
-        `Talismans : ${talismans.length}`
+        "Talismans chargés : " +
+        talismans.length
     );
 
-    console.log(
-        `Armes : ${armes.length}`
-    );
 
     console.log(
-        `Objectifs : ${objectifs.length}`
+        "Armes chargées : " +
+        armes.length
+    );
+
+
+    console.log(
+        "Objectifs chargés : " +
+        objectifs.length
     );
 
 }
@@ -583,11 +727,11 @@ async function initialize() {
 document
     .querySelectorAll(".tab")
     .forEach(
-        tab => {
+        function(tab) {
 
             tab.addEventListener(
                 "click",
-                () => {
+                function() {
 
                     const target =
                         tab.dataset.tab;
@@ -596,11 +740,13 @@ document
                     document
                         .querySelectorAll(".tab")
                         .forEach(
-                            button =>
-                                button.classList
-                                    .remove(
-                                        "active"
-                                    )
+                            function(button) {
+
+                                button.classList.remove(
+                                    "active"
+                                );
+
+                            }
                         );
 
 
@@ -614,17 +760,19 @@ document
                             ".tab-content"
                         )
                         .forEach(
-                            content =>
-                                content.classList
-                                    .remove(
-                                        "active"
-                                    )
+                            function(content) {
+
+                                content.classList.remove(
+                                    "active"
+                                );
+
+                            }
                         );
 
 
                     const content =
                         document.getElementById(
-                            `tab-${target}`
+                            "tab-" + target
                         );
 
 
@@ -644,7 +792,7 @@ document
 
 
 // ============================================================
-// BOUTON : TOURNER LES 3 ROUES
+// TOURNER LES 3 ROUES
 // ============================================================
 
 function spinAll() {
@@ -664,8 +812,11 @@ function spinAll() {
         Object
             .values(wheels)
             .some(
-                wheel =>
-                    wheel.spinning
+                function(wheel) {
+
+                    return wheel.spinning;
+
+                }
             )
     ) {
 
@@ -674,7 +825,9 @@ function spinAll() {
     }
 
 
-    button.disabled = true;
+    button.disabled =
+        true;
+
 
     button.textContent =
         "⚔ DESTIN EN COURS... ⚔";
@@ -685,15 +838,16 @@ function spinAll() {
         wheels
     );
 
+
     spinWheel(
         "arme",
         wheels
     );
 
+
     spinWheel(
         "objectif",
         wheels
-
     );
 
 }
@@ -715,6 +869,7 @@ function spinWheel(
     if (
         !wheel ||
         wheel.spinning ||
+        !wheel.items ||
         !wheel.items.length
     ) {
 
@@ -723,7 +878,8 @@ function spinWheel(
     }
 
 
-    wheel.spinning = true;
+    wheel.spinning =
+        true;
 
 
     const selectedItem =
@@ -796,10 +952,6 @@ function spinWheel(
         fullTurn;
 
 
-    // IMPORTANT :
-    // Toutes les roues utilisent exactement
-    // la même durée.
-
     const duration =
         4300;
 
@@ -820,8 +972,12 @@ function spinWheel(
             duration;
 
 
-        if (progress > 1) {
+        if (
+            progress > 1
+        ) {
+
             progress = 1;
+
         }
 
 
@@ -842,7 +998,9 @@ function spinWheel(
             eased;
 
 
-        drawWheel(wheel);
+        drawWheel(
+            wheel
+        );
 
 
         if (
@@ -853,6 +1011,7 @@ function spinWheel(
                 animate
             );
 
+
             return;
 
         }
@@ -862,7 +1021,9 @@ function spinWheel(
             finalRotation;
 
 
-        drawWheel(wheel);
+        drawWheel(
+            wheel
+        );
 
 
         wheel.spinning =
@@ -878,7 +1039,7 @@ function spinWheel(
 
 
         // ----------------------------------------------------
-        // Si les 3 roues sont terminées
+        // FIN DES 3 ROUES
         // ----------------------------------------------------
 
         if (
@@ -890,12 +1051,17 @@ function spinWheel(
                 Object
                     .values(wheels)
                     .some(
-                        wheel =>
-                            wheel.spinning
+                        function(w) {
+
+                            return w.spinning;
+
+                        }
                     );
 
 
-            if (!stillSpinning) {
+            if (
+                !stillSpinning
+            ) {
 
                 const button =
                     document.getElementById(
@@ -946,7 +1112,9 @@ function spinSingle(type) {
 
     const button =
         document.querySelector(
-            `#tab-${type} .single-spin`
+            "#tab-" +
+            type +
+            " .single-spin"
         );
 
 
@@ -954,6 +1122,7 @@ function spinSingle(type) {
 
         button.disabled =
             true;
+
 
         button.textContent =
             "DESTIN...";
@@ -969,7 +1138,7 @@ function spinSingle(type) {
 
     const check =
         setInterval(
-            () => {
+            function() {
 
                 if (
                     !wheel.spinning
@@ -984,6 +1153,7 @@ function spinSingle(type) {
 
                         button.disabled =
                             false;
+
 
                         button.textContent =
                             "✦ TOURNER ✦";
@@ -1000,7 +1170,7 @@ function spinSingle(type) {
 
 
 // ============================================================
-// RESULTAT
+// AFFICHAGE DU RESULTAT
 // ============================================================
 
 function showResult(
@@ -1011,8 +1181,8 @@ function showResult(
 
     const id =
         single
-            ? `single-result-${type}`
-            : `result-${type}`;
+            ? "single-result-" + type
+            : "result-" + type;
 
 
     const result =
@@ -1032,6 +1202,11 @@ function showResult(
         );
 
 
+    if (!name) {
+        return;
+    }
+
+
     name.textContent =
         item.name;
 
@@ -1045,32 +1220,39 @@ function showResult(
 
                 opacity:
                     0.3
+
             },
 
             {
+
                 transform:
                     "scale(1.08)",
 
                 opacity:
                     1
+
             },
 
             {
+
                 transform:
                     "scale(1)",
 
                 opacity:
                     1
+
             }
 
         ],
 
         {
+
             duration:
                 500,
 
             easing:
                 "ease-out"
+
         }
 
     );
