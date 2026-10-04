@@ -29,16 +29,16 @@ const translations = {
             "Que la Grâce décide de votre destin...",
 
         challenge:
-            "⚔ CHALLENGE",
+            "⚔ CHALLENGE ⚔",
 
         talisman:
-            "✦ TALISMAN",
+            "✦ TALISMAN ✦",
 
         arme:
-            "✦ ARME",
+            "✦ ARME ✦",
 
         objectif:
-            "✦ OBJECTIF",
+            "✦ OBJECTIF ✦",
 
         spinAll:
             "⚔ TOURNER LES ROUES ⚔",
@@ -64,16 +64,16 @@ const translations = {
             "May Grace decide your fate...",
 
         challenge:
-            "⚔ CHALLENGE",
+            "⚔ CHALLENGE ⚔",
 
         talisman:
-            "✦ TALISMAN",
+            "✦ TALISMAN ✦",
 
         arme:
-            "✦ WEAPON",
+            "✦ WEAPON ✦",
 
         objectif:
-            "✦ OBJECTIVE",
+            "✦ OBJECTIVE ✦",
 
         spinAll:
             "⚔ SPIN THE WHEELS ⚔",
