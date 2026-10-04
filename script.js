@@ -6,6 +6,25 @@
 
 
 // ============================================================
+// BACKEND
+// ============================================================
+//
+// Le mode normal reste 100 % local.
+//
+// Seul le mode TEST utilise le backend Spring Boot.
+//
+// Si ton endpoint Spring Boot est différent,
+// modifie uniquement BACKEND_TEST_ENDPOINT.
+// ============================================================
+
+const BACKEND_URL =
+    "http://localhost:8080";
+
+const BACKEND_TEST_ENDPOINT =
+    "/api/challenge/test";
+
+
+// ============================================================
 // LANGUE
 // ============================================================
 
@@ -40,6 +59,9 @@ const translations = {
         objectif:
             "◆ OBJECTIF ◆",
 
+        test:
+            "🌐 TEST",
+
         spinAll:
             "⚔ TOURNER LES ROUES ⚔",
 
@@ -50,7 +72,25 @@ const translations = {
             "◆ TOURNER ◆",
 
         destiny:
-            "DESTIN..."
+            "DESTIN...",
+
+        testSpin:
+            "🌐 TESTER LE BACKEND",
+
+        testLoading:
+            "🌐 CONNEXION AU SERVEUR...",
+
+        testError:
+            "ERREUR SERVEUR",
+
+        testSuccess:
+            "✓ BACKEND OK",
+
+        backendUnavailable:
+            "Impossible de contacter le serveur.",
+
+        backendInvalidResponse:
+            "Réponse invalide du serveur."
 
     },
 
@@ -75,6 +115,9 @@ const translations = {
         objectif:
             "◆ OBJECTIVE ◆",
 
+        test:
+            "🌐 TEST",
+
         spinAll:
             "⚔ SPIN THE WHEELS ⚔",
 
@@ -85,7 +128,25 @@ const translations = {
             "◆ SPIN ◆",
 
         destiny:
-            "FATE..."
+            "FATE...",
+
+        testSpin:
+            "🌐 TEST BACKEND",
+
+        testLoading:
+            "🌐 CONNECTING TO SERVER...",
+
+        testError:
+            "SERVER ERROR",
+
+        testSuccess:
+            "✓ BACKEND OK",
+
+        backendUnavailable:
+            "Unable to contact the server.",
+
+        backendInvalidResponse:
+            "Invalid server response."
 
     }
 
@@ -109,12 +170,264 @@ function getItemName(item) {
         currentLanguage === "en"
     ) {
 
-        return item.nameEN;
+        return (
+            item.nameEN ||
+            item.nameFR ||
+            ""
+        );
 
     }
 
 
-    return item.nameFR;
+    return (
+        item.nameFR ||
+        item.nameEN ||
+        ""
+    );
+
+}
+
+
+// ============================================================
+// NORMALISATION D'UN ITEM BACKEND
+// ============================================================
+//
+// Permet au frontend de comprendre plusieurs formes de réponse
+// Spring Boot.
+//
+// Exemples acceptés :
+//
+// {
+//     nameFR: "...",
+//     nameEN: "...",
+//     image: "..."
+// }
+//
+// ou :
+//
+// {
+//     name: "..."
+// }
+//
+// ou simplement une chaîne.
+//
+// ============================================================
+
+function normalizeBackendItem(
+    backendItem,
+    type
+) {
+
+    if (
+        !backendItem
+    ) {
+
+        return null;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Le backend renvoie directement une chaîne
+    // --------------------------------------------------------
+
+    if (
+        typeof backendItem === "string"
+    ) {
+
+        const name =
+            backendItem.trim();
+
+
+        const localItem =
+            findLocalItem(
+                type,
+                name
+            );
+
+
+        if (localItem) {
+
+            return localItem;
+
+        }
+
+
+        return {
+
+            nameFR:
+                name,
+
+            nameEN:
+                name,
+
+            weight:
+                1,
+
+            image:
+                ""
+
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // Le backend renvoie un objet
+    // --------------------------------------------------------
+
+    const nameFR =
+        (
+            backendItem.nameFR ||
+            backendItem.nameFr ||
+            backendItem.name ||
+            backendItem.nomFR ||
+            backendItem.nom ||
+            ""
+        ).toString().trim();
+
+
+    const nameEN =
+        (
+            backendItem.nameEN ||
+            backendItem.nameEn ||
+            backendItem.nomEN ||
+            nameFR
+        ).toString().trim();
+
+
+    const image =
+        (
+            backendItem.image ||
+            backendItem.imageUrl ||
+            ""
+        ).toString().trim();
+
+
+    // --------------------------------------------------------
+    // Essaye d'abord de retrouver l'item local
+    // --------------------------------------------------------
+
+    const localItem =
+        findLocalItem(
+            type,
+            nameFR
+        ) ||
+        findLocalItem(
+            type,
+            nameEN
+        );
+
+
+    if (localItem) {
+
+        return localItem;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Sinon on construit un item compatible
+    // --------------------------------------------------------
+
+    return {
+
+        nameFR:
+            nameFR || nameEN,
+
+        nameEN:
+            nameEN || nameFR,
+
+        weight:
+            1,
+
+        image:
+            image
+
+    };
+
+}
+
+
+// ============================================================
+// RECHERCHE D'UN ITEM LOCAL
+// ============================================================
+
+function findLocalItem(
+    type,
+    name
+) {
+
+    if (!name) {
+
+        return null;
+
+    }
+
+
+    let items = [];
+
+
+    if (
+        type === "talisman"
+    ) {
+
+        items =
+            talismans;
+
+    }
+
+    else if (
+        type === "arme"
+    ) {
+
+        items =
+            armes;
+
+    }
+
+    else if (
+        type === "objectif"
+    ) {
+
+        items =
+            objectifs;
+
+    }
+
+
+    const normalizedName =
+        name
+            .toString()
+            .trim()
+            .toLowerCase();
+
+
+    return (
+        items.find(
+            function(item) {
+
+                return (
+                    (
+                        item.nameFR ||
+                        ""
+                    )
+                        .trim()
+                        .toLowerCase() ===
+                    normalizedName
+                ) ||
+                (
+                    item.nameEN ||
+                    ""
+                )
+                    .trim()
+                    .toLowerCase() ===
+                    normalizedName;
+
+            }
+        ) ||
+        null
+    );
 
 }
 
@@ -123,7 +436,9 @@ function getItemName(item) {
 // CHANGEMENT DE LANGUE
 // ============================================================
 
-function setLanguage(language) {
+function setLanguage(
+    language
+) {
 
     if (
         language !== "fr" &&
@@ -159,10 +474,6 @@ function setLanguage(language) {
 // ============================================================
 // MISE A JOUR DES RESULTATS
 // ============================================================
-//
-// Retraduit les résultats déjà affichés lorsqu'on change
-// de langue.
-// ============================================================
 
 function updateDisplayedResults() {
 
@@ -177,105 +488,72 @@ function updateDisplayedResults() {
     ];
 
 
+    const resultCollections = [
+
+        "result-",
+
+        "single-result-",
+
+        "test-result-"
+
+    ];
+
+
     resultTypes.forEach(
         function(type) {
 
-            // ------------------------------------------------
-            // RESULTAT ROUE PRINCIPALE
-            // ------------------------------------------------
+            resultCollections.forEach(
+                function(prefix) {
 
-            const result =
-                document.getElementById(
-                    "result-" + type
-                );
-
-
-            if (
-                result &&
-                result._selectedItem
-            ) {
-
-                const name =
-                    result.querySelector(
-                        ".result-name"
-                    );
-
-
-                if (name) {
-
-                    name.textContent =
-                        getItemName(
-                            result._selectedItem
+                    const result =
+                        document.getElementById(
+                            prefix + type
                         );
 
-                }
+
+                    if (
+                        !result ||
+                        !result._selectedItem
+                    ) {
+
+                        return;
+
+                    }
 
 
-                const image =
-                    result.querySelector(
-                        ".winner-image"
-                    );
-
-
-                if (image) {
-
-                    image.alt =
-                        getItemName(
-                            result._selectedItem
+                    const name =
+                        result.querySelector(
+                            ".result-name"
                         );
 
-                }
 
-            }
+                    if (name) {
 
+                        name.textContent =
+                            getItemName(
+                                result._selectedItem
+                            );
 
-            // ------------------------------------------------
-            // RESULTAT ROUE INDIVIDUELLE
-            // ------------------------------------------------
-
-            const singleResult =
-                document.getElementById(
-                    "single-result-" + type
-                );
+                    }
 
 
-            if (
-                singleResult &&
-                singleResult._selectedItem
-            ) {
-
-                const name =
-                    singleResult.querySelector(
-                        ".result-name"
-                    );
-
-
-                if (name) {
-
-                    name.textContent =
-                        getItemName(
-                            singleResult._selectedItem
+                    const image =
+                        result.querySelector(
+                            ".winner-image"
                         );
 
-                }
 
+                    if (image) {
 
-                const image =
-                    singleResult.querySelector(
-                        ".winner-image"
-                    );
+                        image.alt =
+                            getItemName(
+                                result._selectedItem
+                            );
 
-
-                if (image) {
-
-                    image.alt =
-                        getItemName(
-                            singleResult._selectedItem
-                        );
+                    }
 
                 }
-
-            }
+            );
 
         }
     );
@@ -367,7 +645,7 @@ function updateInterface() {
 
     document
         .querySelectorAll(
-            ".wheel-card h3, .single-wheel-card h3"
+            ".wheel-card h3, .single-wheel-card h3, .test-wheel-card h3"
         )
         .forEach(
             function(title) {
@@ -465,6 +743,27 @@ function updateInterface() {
 
 
     // --------------------------------------------------------
+    // BOUTON TEST
+    // --------------------------------------------------------
+
+    const testButton =
+        document.getElementById(
+            "test-spin"
+        );
+
+
+    if (
+        testButton &&
+        !testButton.disabled
+    ) {
+
+        testButton.textContent =
+            t.testSpin;
+
+    }
+
+
+    // --------------------------------------------------------
     // FOOTER
     // --------------------------------------------------------
 
@@ -475,12 +774,6 @@ function updateInterface() {
 
 
     if (footer) {
-
-        const spans =
-            footer.querySelectorAll(
-                "span"
-            );
-
 
         footer.textContent = "";
 
@@ -497,13 +790,7 @@ function updateInterface() {
 
         const text =
             document.createTextNode(
-                " ELDEN RING " +
-                (
-                    currentLanguage === "fr"
-                        ? "CHALLENGE"
-                        : "CHALLENGE"
-                ) +
-                " "
+                " ELDEN RING CHALLENGE "
             );
 
 
@@ -535,7 +822,7 @@ function updateInterface() {
 
 
     // --------------------------------------------------------
-    // RESULTATS DEJA AFFICHES
+    // RESULTATS
     // --------------------------------------------------------
 
     updateDisplayedResults();
@@ -586,66 +873,43 @@ function updateLanguageButtons() {
 // ============================================================
 // REDESSIN DES ROUES
 // ============================================================
-//
-// Important :
-// On ne relance PAS les roues.
-//
-// On redessine simplement les mêmes éléments
-// avec la langue sélectionnée.
-// ============================================================
 
 function redrawAllWheels() {
 
-    Object
-        .values(
-            wheels
-        )
-        .forEach(
-            function(wheel) {
+    [
+        wheels,
+        singleWheels,
+        testWheels
+    ].forEach(
+        function(collection) {
 
-                if (
-                    wheel.currentItems &&
-                    wheel.currentItems.length
-                ) {
+            Object
+                .values(
+                    collection
+                )
+                .forEach(
+                    function(wheel) {
 
-                    drawSlotMachine(
-                        wheel,
-                        wheel.currentItems,
-                        wheel.currentOffset || 0,
-                        false,
-                        wheel.currentStartSequenceIndex || 0
-                    );
+                        if (
+                            wheel.currentItems &&
+                            wheel.currentItems.length
+                        ) {
 
-                }
+                            drawSlotMachine(
+                                wheel,
+                                wheel.currentItems,
+                                wheel.currentOffset || 0,
+                                false,
+                                wheel.currentStartSequenceIndex || 0
+                            );
 
-            }
-        );
+                        }
 
+                    }
+                );
 
-    Object
-        .values(
-            singleWheels
-        )
-        .forEach(
-            function(wheel) {
-
-                if (
-                    wheel.currentItems &&
-                    wheel.currentItems.length
-                ) {
-
-                    drawSlotMachine(
-                        wheel,
-                        wheel.currentItems,
-                        wheel.currentOffset || 0,
-                        false,
-                        wheel.currentStartSequenceIndex || 0
-                    );
-
-                }
-
-            }
-        );
+        }
+    );
 
 }
 
@@ -662,16 +926,18 @@ function redrawAllWheels() {
 //
 // Talisman tortue|Green Turtle Talisman|50|tortue.png
 //
-// Chance facultative.
-// Image facultative.
 // ============================================================
 
-async function loadItems(filename) {
+async function loadItems(
+    filename
+) {
 
     try {
 
         const response =
-            await fetch(filename);
+            await fetch(
+                filename
+            );
 
 
         if (!response.ok) {
@@ -766,10 +1032,6 @@ async function loadItems(filename) {
 
                     }
 
-
-                    // ------------------------------------------------
-                    // IMAGE
-                    // ------------------------------------------------
 
                     let image =
                         "";
@@ -894,10 +1156,6 @@ function getItemImage(
     }
 
 
-    // --------------------------------------------------------
-    // Encode proprement le nom du fichier
-    // --------------------------------------------------------
-
     const encodedImageName =
         imageName
             .split("/")
@@ -919,10 +1177,6 @@ function getItemImage(
         encodedImageName;
 
 
-    // --------------------------------------------------------
-    // Image déjà chargée / en cours de chargement
-    // --------------------------------------------------------
-
     if (
         wheelImageCache[imagePath]
     ) {
@@ -933,10 +1187,6 @@ function getItemImage(
 
     }
 
-
-    // --------------------------------------------------------
-    // Création de l'image
-    // --------------------------------------------------------
 
     const image =
         new Image();
@@ -1024,102 +1274,97 @@ let objectifs = [];
 
 
 // ============================================================
+// CREATION D'UNE MACHINE
+// ============================================================
+
+function createWheel(
+    canvasId,
+    items
+) {
+
+    return {
+
+        canvas:
+            document.getElementById(
+                canvasId
+            ),
+
+        items:
+            items,
+
+        spinning:
+            false,
+
+        selectedItem:
+            null,
+
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
+
+    };
+
+}
+
+
+// ============================================================
 // MACHINES PRINCIPALES
 // ============================================================
 
 const wheels = {
 
-    talisman: {
+    talisman:
+        createWheel(
+            "wheel-talisman",
+            talismans
+        ),
 
-        canvas:
-            document.getElementById(
-                "wheel-talisman"
-            ),
+    arme:
+        createWheel(
+            "wheel-arme",
+            armes
+        ),
 
-        items:
-            talismans,
+    objectif:
+        createWheel(
+            "wheel-objectif",
+            objectifs
+        )
 
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
-    },
+};
 
 
-    arme: {
+// ============================================================
+// MACHINES TEST BACKEND
+// ============================================================
 
-        canvas:
-            document.getElementById(
-                "wheel-arme"
-            ),
+const testWheels = {
 
-        items:
-            armes,
+    talisman:
+        createWheel(
+            "test-wheel-talisman",
+            talismans
+        ),
 
-        spinning:
-            false,
+    arme:
+        createWheel(
+            "test-wheel-arme",
+            armes
+        ),
 
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
-    },
-
-
-    objectif: {
-
-        canvas:
-            document.getElementById(
-                "wheel-objectif"
-            ),
-
-        items:
-            objectifs,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
-    }
+    objectif:
+        createWheel(
+            "test-wheel-objectif",
+            objectifs
+        )
 
 };
 
@@ -1130,97 +1375,23 @@ const wheels = {
 
 const singleWheels = {
 
-    talisman: {
+    talisman:
+        createWheel(
+            "single-wheel-talisman",
+            talismans
+        ),
 
-        canvas:
-            document.getElementById(
-                "single-wheel-talisman"
-            ),
+    arme:
+        createWheel(
+            "single-wheel-arme",
+            armes
+        ),
 
-        items:
-            talismans,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
-    },
-
-
-    arme: {
-
-        canvas:
-            document.getElementById(
-                "single-wheel-arme"
-            ),
-
-        items:
-            armes,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
-    },
-
-
-    objectif: {
-
-        canvas:
-            document.getElementById(
-                "single-wheel-objectif"
-            ),
-
-        items:
-            objectifs,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
-    }
+    objectif:
+        createWheel(
+            "single-wheel-objectif",
+            objectifs
+        )
 
 };
 
@@ -1250,7 +1421,9 @@ const slotColors = [
 // TIRAGE PONDERE
 // ============================================================
 
-function chooseWeightedItem(items) {
+function chooseWeightedItem(
+    items
+) {
 
     if (
         !items ||
@@ -1309,7 +1482,9 @@ function chooseWeightedItem(items) {
 // OUTILS
 // ============================================================
 
-function getFontSize(canvas) {
+function getFontSize(
+    canvas
+) {
 
     if (
         canvas.width >= 600
@@ -1325,14 +1500,18 @@ function getFontSize(canvas) {
 }
 
 
-function getVisibleRows(canvas) {
+function getVisibleRows(
+    canvas
+) {
 
     return 5;
 
 }
 
 
-function getRowHeight(canvas) {
+function getRowHeight(
+    canvas
+) {
 
     return canvas.height / 5;
 
@@ -1404,6 +1583,16 @@ function drawSlotMachine(
     }
 
 
+    if (
+        !visibleItems ||
+        !visibleItems.length
+    ) {
+
+        return;
+
+    }
+
+
     wheel.currentItems =
         visibleItems.slice();
 
@@ -1417,7 +1606,9 @@ function drawSlotMachine(
 
 
     const ctx =
-        canvas.getContext("2d");
+        canvas.getContext(
+            "2d"
+        );
 
 
     const width =
@@ -1489,7 +1680,9 @@ function drawSlotMachine(
 
 
     const rowHeight =
-        getRowHeight(canvas);
+        getRowHeight(
+            canvas
+        );
 
 
     const centerY =
@@ -1497,7 +1690,9 @@ function drawSlotMachine(
 
 
     const fontSize =
-        getFontSize(canvas);
+        getFontSize(
+            canvas
+        );
 
 
     // --------------------------------------------------------
@@ -1534,7 +1729,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // DESSIN DES 7 ELEMENTS
+    // DESSIN DES ELEMENTS
     // --------------------------------------------------------
 
     for (
@@ -1567,10 +1762,6 @@ function drawSlotMachine(
             rowHeight -
             offset;
 
-
-        // ----------------------------------------------------
-        // COULEUR LIEE A L'ITEM
-        // ----------------------------------------------------
 
         let itemIndex =
             wheel.items.indexOf(
@@ -1672,7 +1863,7 @@ function drawSlotMachine(
 
 
         // ----------------------------------------------------
-        // SEPARATION ENTRE LES CASES
+        // SEPARATION
         // ----------------------------------------------------
 
         ctx.strokeStyle =
@@ -1709,7 +1900,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // CADRE DE LA CASE CENTRALE
+    // CASE CENTRALE
     // --------------------------------------------------------
 
     const centralTop =
@@ -1961,17 +2152,50 @@ function createSpinSequence(
 
 function spinSlotMachine(
     type,
-    wheelCollection
+    wheelCollection,
+    forcedItem = null,
+    resultPrefix = null
 ) {
 
     // --------------------------------------------------------
-    // EFFACE LE RESULTAT PRECEDENT
+    // DETERMINE LE RESULTAT
     // --------------------------------------------------------
 
+    if (!resultPrefix) {
+
+        if (
+            wheelCollection ===
+            singleWheels
+        ) {
+
+            resultPrefix =
+                "single-result-";
+
+        }
+
+        else if (
+            wheelCollection ===
+            testWheels
+        ) {
+
+            resultPrefix =
+                "test-result-";
+
+        }
+
+        else {
+
+            resultPrefix =
+                "result-";
+
+        }
+
+    }
+
+
     const resultId =
-        wheelCollection === singleWheels
-            ? "single-result-" + type
-            : "result-" + type;
+        resultPrefix +
+        type;
 
 
     const result =
@@ -2009,7 +2233,6 @@ function spinSlotMachine(
         }
 
 
-        // Oublie également l'ancien résultat
         result._selectedItem =
             null;
 
@@ -2040,10 +2263,18 @@ function spinSlotMachine(
     // CHOIX DU RESULTAT
     // --------------------------------------------------------
 
-    const selectedItem =
-        chooseWeightedItem(
-            wheel.items
-        );
+    let selectedItem =
+        forcedItem;
+
+
+    if (!selectedItem) {
+
+        selectedItem =
+            chooseWeightedItem(
+                wheel.items
+            );
+
+    }
 
 
     wheel.selectedItem =
@@ -2051,7 +2282,7 @@ function spinSlotMachine(
 
 
     // --------------------------------------------------------
-    // CREATION DE LA SEQUENCE
+    // SEQUENCE
     // --------------------------------------------------------
 
     const sequence =
@@ -2075,6 +2306,16 @@ function spinSlotMachine(
 
     const canvas =
         wheel.canvas;
+
+
+    if (!canvas) {
+
+        wheel.spinning =
+            false;
+
+        return;
+
+    }
 
 
     const rowHeight =
@@ -2130,10 +2371,6 @@ function spinSlotMachine(
         }
 
 
-        // ----------------------------------------------------
-        // EASING
-        // ----------------------------------------------------
-
         const eased =
             1 -
             Math.pow(
@@ -2158,10 +2395,6 @@ function spinSlotMachine(
             distance %
             rowHeight;
 
-
-        // ----------------------------------------------------
-        // FENETRE DE 7 ELEMENTS
-        // ----------------------------------------------------
 
         const visibleStartIndex =
             Math.max(
@@ -2285,19 +2518,18 @@ function spinSlotMachine(
 
 
         // ----------------------------------------------------
-        // RESULTAT TEXTE + IMAGE
+        // RESULTAT
         // ----------------------------------------------------
 
         showResult(
             type,
             selectedItem,
-            wheelCollection ===
-                singleWheels
+            resultPrefix
         );
 
 
         // ----------------------------------------------------
-        // FIN DES 3 MACHINES
+        // FIN DU MODE NORMAL
         // ----------------------------------------------------
 
         if (
@@ -2346,6 +2578,57 @@ function spinSlotMachine(
 
         }
 
+
+        // ----------------------------------------------------
+        // FIN DU MODE TEST
+        // ----------------------------------------------------
+
+        if (
+            wheelCollection ===
+            testWheels
+        ) {
+
+            const stillSpinning =
+                Object
+                    .values(
+                        testWheels
+                    )
+                    .some(
+                        function(w) {
+
+                            return w.spinning;
+
+                        }
+                    );
+
+
+            if (
+                !stillSpinning
+            ) {
+
+                const button =
+                    document.getElementById(
+                        "test-spin"
+                    );
+
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+
+                    button.textContent =
+                        translations[
+                            currentLanguage
+                        ].testSuccess;
+
+                }
+
+            }
+
+        }
+
     }
 
 
@@ -2353,6 +2636,463 @@ function spinSlotMachine(
         requestAnimationFrame(
             animate
         );
+
+}
+
+
+// ============================================================
+// TEST BACKEND
+// ============================================================
+//
+// Le bouton TEST demande au backend les trois résultats.
+//
+// POST :
+//
+// http://localhost:8080/api/challenge/test
+//
+// Le backend peut renvoyer par exemple :
+//
+// {
+//     "talisman": {...},
+//     "arme": {...},
+//     "objectif": {...}
+// }
+//
+// ou :
+//
+// {
+//     "talisman": "Nom du talisman",
+//     "arme": "Nom de l'arme",
+//     "objectif": "Nom de l'objectif"
+// }
+//
+// ============================================================
+
+async function requestBackendTest() {
+
+    const response =
+        await fetch(
+            BACKEND_URL +
+            BACKEND_TEST_ENDPOINT,
+            {
+
+                method:
+                    "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body:
+                    JSON.stringify({
+
+                        language:
+                            currentLanguage
+
+                    })
+
+            }
+        );
+
+
+    if (
+        !response.ok
+    ) {
+
+        throw new Error(
+            "HTTP " +
+            response.status
+        );
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    if (
+        !data ||
+        typeof data !== "object"
+    ) {
+
+        throw new Error(
+            "Réponse backend invalide"
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+// ============================================================
+// RECUPERATION FLEXIBLE D'UN RESULTAT BACKEND
+// ============================================================
+
+function getBackendResult(
+    data,
+    type
+) {
+
+    // --------------------------------------------------------
+    // Format direct
+    //
+    // {
+    //   talisman: ...,
+    //   arme: ...,
+    //   objectif: ...
+    // }
+    // --------------------------------------------------------
+
+    if (
+        data[type] !== undefined
+    ) {
+
+        return data[type];
+
+    }
+
+
+    // --------------------------------------------------------
+    // Format "result"
+    // --------------------------------------------------------
+
+    if (
+        data.result &&
+        typeof data.result === "object" &&
+        data.result[type] !== undefined
+    ) {
+
+        return data.result[type];
+
+    }
+
+
+    // --------------------------------------------------------
+    // Format "results"
+    // --------------------------------------------------------
+
+    if (
+        data.results &&
+        typeof data.results === "object" &&
+        data.results[type] !== undefined
+    ) {
+
+        return data.results[type];
+
+    }
+
+
+    return null;
+
+}
+
+
+// ============================================================
+// BOUTON TEST BACKEND
+// ============================================================
+
+async function testBackend() {
+
+    const button =
+        document.getElementById(
+            "test-spin"
+        );
+
+
+    if (!button) {
+
+        console.warn(
+            "Bouton #test-spin introuvable."
+        );
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Empêche un deuxième test
+    // --------------------------------------------------------
+
+    if (
+        Object
+            .values(
+                testWheels
+            )
+            .some(
+                function(wheel) {
+
+                    return wheel.spinning;
+
+                }
+            )
+    ) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Vérification des données
+    // --------------------------------------------------------
+
+    if (
+        !talismans.length ||
+        !armes.length ||
+        !objectifs.length
+    ) {
+
+        console.error(
+            "Impossible de lancer le test : listes vides."
+        );
+
+        return;
+
+    }
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        translations[
+            currentLanguage
+        ].testLoading;
+
+
+    // --------------------------------------------------------
+    // Nettoyage des anciens résultats
+    // --------------------------------------------------------
+
+    [
+        "talisman",
+        "arme",
+        "objectif"
+    ].forEach(
+        function(type) {
+
+            const result =
+                document.getElementById(
+                    "test-result-" +
+                    type
+                );
+
+
+            if (!result) {
+
+                return;
+
+            }
+
+
+            result._selectedItem =
+                null;
+
+
+            const name =
+                result.querySelector(
+                    ".result-name"
+                );
+
+
+            if (name) {
+
+                name.textContent =
+                    "";
+
+            }
+
+
+            const image =
+                result.querySelector(
+                    ".winner-image"
+                );
+
+
+            if (image) {
+
+                image.remove();
+
+            }
+
+        }
+    );
+
+
+    try {
+
+        // ----------------------------------------------------
+        // APPEL SPRING BOOT
+        // ----------------------------------------------------
+
+        const data =
+            await requestBackendTest();
+
+
+        console.log(
+            "Réponse backend TEST :",
+            data
+        );
+
+
+        // ----------------------------------------------------
+        // RESULTATS
+        // ----------------------------------------------------
+
+        const backendTalisman =
+            getBackendResult(
+                data,
+                "talisman"
+            );
+
+
+        const backendArme =
+            getBackendResult(
+                data,
+                "arme"
+            );
+
+
+        const backendObjectif =
+            getBackendResult(
+                data,
+                "objectif"
+            );
+
+
+        if (
+            backendTalisman == null ||
+            backendArme == null ||
+            backendObjectif == null
+        ) {
+
+            throw new Error(
+                "La réponse backend ne contient pas les trois résultats."
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // NORMALISATION
+        // ----------------------------------------------------
+
+        const selectedTalisman =
+            normalizeBackendItem(
+                backendTalisman,
+                "talisman"
+            );
+
+
+        const selectedArme =
+            normalizeBackendItem(
+                backendArme,
+                "arme"
+            );
+
+
+        const selectedObjectif =
+            normalizeBackendItem(
+                backendObjectif,
+                "objectif"
+            );
+
+
+        if (
+            !selectedTalisman ||
+            !selectedArme ||
+            !selectedObjectif
+        ) {
+
+            throw new Error(
+                "Impossible de convertir les résultats backend."
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // LANCEMENT DES 3 ROUES
+        //
+        // Le résultat est imposé par Spring Boot.
+        // Le navigateur ne fait donc PAS le tirage.
+        // ----------------------------------------------------
+
+        spinSlotMachine(
+            "talisman",
+            testWheels,
+            selectedTalisman,
+            "test-result-"
+        );
+
+
+        spinSlotMachine(
+            "arme",
+            testWheels,
+            selectedArme,
+            "test-result-"
+        );
+
+
+        spinSlotMachine(
+            "objectif",
+            testWheels,
+            selectedObjectif,
+            "test-result-"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Erreur TEST backend :",
+            error
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            translations[
+                currentLanguage
+            ].testError;
+
+
+        // ----------------------------------------------------
+        // Retour automatique au texte normal
+        // ----------------------------------------------------
+
+        setTimeout(
+            function() {
+
+                if (
+                    !button.disabled
+                ) {
+
+                    button.textContent =
+                        translations[
+                            currentLanguage
+                        ].testSpin;
+
+                }
+
+            },
+            2500
+        );
+
+    }
 
 }
 
@@ -2399,7 +3139,7 @@ async function initialize() {
 
 
     // --------------------------------------------------------
-    // MISE A JOUR DES MACHINES
+    // MACHINES PRINCIPALES
     // --------------------------------------------------------
 
     wheels.talisman.items =
@@ -2414,6 +3154,26 @@ async function initialize() {
         objectifs;
 
 
+    // --------------------------------------------------------
+    // MACHINES TEST
+    // --------------------------------------------------------
+
+    testWheels.talisman.items =
+        talismans;
+
+
+    testWheels.arme.items =
+        armes;
+
+
+    testWheels.objectif.items =
+        objectifs;
+
+
+    // --------------------------------------------------------
+    // MACHINES INDIVIDUELLES
+    // --------------------------------------------------------
+
     singleWheels.talisman.items =
         talismans;
 
@@ -2427,7 +3187,7 @@ async function initialize() {
 
 
     // --------------------------------------------------------
-    // PRECHARGEMENT DES IMAGES
+    // PRECHARGEMENT IMAGES
     // --------------------------------------------------------
 
     preloadItemImages(
@@ -2449,79 +3209,53 @@ async function initialize() {
 
 
     // --------------------------------------------------------
-    // AFFICHAGE INITIAL ALEATOIRE
+    // AFFICHAGE INITIAL
     // --------------------------------------------------------
 
-    Object
-        .values(
-            wheels
-        )
-        .forEach(
-            function(wheel) {
+    [
+        wheels,
+        testWheels,
+        singleWheels
+    ].forEach(
+        function(collection) {
 
-                const initialItems =
-                    getInitialItems(
-                        wheel.items
-                    );
+            Object
+                .values(
+                    collection
+                )
+                .forEach(
+                    function(wheel) {
 
-
-                if (
-                    !initialItems.length
-                ) {
-
-                    return;
-
-                }
+                        const initialItems =
+                            getInitialItems(
+                                wheel.items
+                            );
 
 
-                drawSlotMachine(
-                    wheel,
-                    initialItems,
-                    0,
-                    false,
-                    wheel.items.indexOf(
-                        initialItems[0]
-                    )
+                        if (
+                            !initialItems.length
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        drawSlotMachine(
+                            wheel,
+                            initialItems,
+                            0,
+                            false,
+                            wheel.items.indexOf(
+                                initialItems[0]
+                            )
+                        );
+
+                    }
                 );
 
-            }
-        );
-
-
-    Object
-        .values(
-            singleWheels
-        )
-        .forEach(
-            function(wheel) {
-
-                const initialItems =
-                    getInitialItems(
-                        wheel.items
-                    );
-
-
-                if (
-                    !initialItems.length
-                ) {
-
-                    return;
-
-                }
-
-
-                drawSlotMachine(
-                    wheel,
-                    initialItems,
-                    0,
-                    false,
-                    wheel.items.indexOf(
-                        initialItems[0]
-                    )
-                );
-
-            }
-        );
+        }
+    );
 
 
     // --------------------------------------------------------
@@ -2555,6 +3289,13 @@ async function initialize() {
         objectifs.length
     );
 
+
+    console.log(
+        "Backend TEST : " +
+        BACKEND_URL +
+        BACKEND_TEST_ENDPOINT
+    );
+
 }
 
 
@@ -2562,7 +3303,9 @@ async function initialize() {
 // ITEMS INITIAUX
 // ============================================================
 
-function getInitialItems(items) {
+function getInitialItems(
+    items
+) {
 
     if (
         !items ||
@@ -2683,6 +3426,42 @@ document
                             "active"
                         );
 
+                        // --------------------------------------------
+                        // Si on ouvre TEST, on s'assure que les roues
+                        // sont correctement dessinées.
+                        // --------------------------------------------
+
+                        if (
+                            target === "test"
+                        ) {
+
+                            Object
+                                .values(
+                                    testWheels
+                                )
+                                .forEach(
+                                    function(wheel) {
+
+                                        if (
+                                            wheel.currentItems &&
+                                            wheel.currentItems.length
+                                        ) {
+
+                                            drawSlotMachine(
+                                                wheel,
+                                                wheel.currentItems,
+                                                wheel.currentOffset || 0,
+                                                false,
+                                                wheel.currentStartSequenceIndex || 0
+                                            );
+
+                                        }
+
+                                    }
+                                );
+
+                        }
+
                     }
 
                 }
@@ -2792,7 +3571,9 @@ function spinAll() {
 // ROUE INDIVIDUELLE
 // ============================================================
 
-function spinSingle(type) {
+function spinSingle(
+    type
+) {
 
     const wheel =
         singleWheels[type];
@@ -2874,29 +3655,16 @@ function spinSingle(type) {
 // ============================================================
 // AFFICHAGE DU RESULTAT
 // ============================================================
-//
-// L'IMAGE EST AFFICHÉE UNIQUEMENT ICI.
-//
-// Elle n'est PAS dessinée dans le canvas.
-// Elle apparaît dans l'encadré du winner,
-// à droite du nom.
-//
-// Le résultat est mémorisé dans _selectedItem afin
-// de pouvoir être retraduit lors d'un changement de langue.
-// ============================================================
 
 function showResult(
     type,
     item,
-    single
+    resultPrefix
 ) {
 
     const id =
-        single
-            ? "single-result-" +
-              type
-            : "result-" +
-              type;
+        resultPrefix +
+        type;
 
 
     const result =
@@ -2906,6 +3674,11 @@ function showResult(
 
 
     if (!result) {
+
+        console.warn(
+            "Result container introuvable :",
+            id
+        );
 
         return;
 
@@ -2928,16 +3701,13 @@ function showResult(
     // --------------------------------------------------------
     // MEMORISE LE WINNER
     // --------------------------------------------------------
-    //
-    // Très important pour pouvoir le retraduire plus tard.
-    // --------------------------------------------------------
 
     result._selectedItem =
         item;
 
 
     // --------------------------------------------------------
-    // NOM DU WINNER
+    // NOM
     // --------------------------------------------------------
 
     name.textContent =
@@ -2945,7 +3715,7 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // SUPPRIME UNE EVENTUELLE ANCIENNE IMAGE
+    // ANCIENNE IMAGE
     // --------------------------------------------------------
 
     const oldImage =
@@ -2962,7 +3732,7 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // CHERCHE L'IMAGE
+    // IMAGE
     // --------------------------------------------------------
 
     const image =
@@ -2972,14 +3742,7 @@ function showResult(
         );
 
 
-    if (
-        image
-    ) {
-
-        // ----------------------------------------------------
-        // On utilise une nouvelle balise image dans
-        // l'encadré du résultat.
-        // ----------------------------------------------------
+    if (image) {
 
         const winnerImage =
             document.createElement(
@@ -2994,12 +3757,6 @@ function showResult(
         winnerImage.alt =
             getItemName(item);
 
-
-        // ----------------------------------------------------
-        // STYLE UNIQUEMENT SUR L'IMAGE
-        //
-        // Aucun changement du CSS de la page.
-        // ----------------------------------------------------
 
         winnerImage.style.display =
             "inline-block";
@@ -3037,17 +3794,9 @@ function showResult(
             "0";
 
 
-        // ----------------------------------------------------
-        // Image
-        // ----------------------------------------------------
-
         winnerImage.src =
             image.src;
 
-
-        // ----------------------------------------------------
-        // L'image est placée APRES le libellé du winner
-        // ----------------------------------------------------
 
         result.appendChild(
             winnerImage
@@ -3057,7 +3806,7 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // ANIMATION EXISTANTE DU RESULTAT
+    // ANIMATION
     // --------------------------------------------------------
 
     result.animate(
