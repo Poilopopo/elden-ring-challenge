@@ -2870,19 +2870,14 @@ function spinSingle(type) {
 
 }
 
-
 // ============================================================
 // AFFICHAGE DU RESULTAT
 // ============================================================
 //
 // L'IMAGE EST AFFICHÉE UNIQUEMENT ICI.
 //
-// Elle n'est PAS dessinée dans le canvas.
-// Elle apparaît dans l'encadré du winner,
-// à droite du nom.
-//
-// Le résultat est mémorisé dans _selectedItem afin
-// de pouvoir être retraduit lors d'un changement de langue.
+// Le nom du résultat est affiché en haut,
+// puis l'image est centrée en dessous.
 // ============================================================
 
 function showResult(
@@ -2926,17 +2921,6 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // MEMORISE LE WINNER
-    // --------------------------------------------------------
-    //
-    // Très important pour pouvoir le retraduire plus tard.
-    // --------------------------------------------------------
-
-    result._selectedItem =
-        item;
-
-
-    // --------------------------------------------------------
     // NOM DU WINNER
     // --------------------------------------------------------
 
@@ -2977,8 +2961,41 @@ function showResult(
     ) {
 
         // ----------------------------------------------------
-        // On utilise une nouvelle balise image dans
-        // l'encadré du résultat.
+        // CONTENEUR DE L'IMAGE
+        // ----------------------------------------------------
+
+        const imageContainer =
+            document.createElement(
+                "div"
+            );
+
+
+        imageContainer.className =
+            "winner-image-container";
+
+
+        imageContainer.style.display =
+            "flex";
+
+
+        imageContainer.style.justifyContent =
+            "center";
+
+
+        imageContainer.style.alignItems =
+            "center";
+
+
+        imageContainer.style.width =
+            "100%";
+
+
+        imageContainer.style.marginTop =
+            "8px";
+
+
+        // ----------------------------------------------------
+        // IMAGE
         // ----------------------------------------------------
 
         const winnerImage =
@@ -2995,14 +3012,8 @@ function showResult(
             getItemName(item);
 
 
-        // ----------------------------------------------------
-        // STYLE UNIQUEMENT SUR L'IMAGE
-        //
-        // Aucun changement du CSS de la page.
-        // ----------------------------------------------------
-
         winnerImage.style.display =
-            "inline-block";
+            "block";
 
 
         winnerImage.style.width =
@@ -3021,36 +3032,43 @@ function showResult(
             "contain";
 
 
-        winnerImage.style.verticalAlign =
-            "middle";
-
-
-        winnerImage.style.marginLeft =
-            "18px";
-
-
-        winnerImage.style.marginRight =
-            "5px";
-
-
-        winnerImage.style.marginBottom =
-            "0";
+        winnerImage.style.margin =
+            "0 auto";
 
 
         // ----------------------------------------------------
-        // Image
+        // IMAGE DEJA CHARGEE
         // ----------------------------------------------------
 
-        winnerImage.src =
-            image.src;
+        if (
+            image.complete &&
+            image.naturalWidth > 0
+        ) {
+
+            winnerImage.src =
+                image.src;
+
+        }
+
+        else {
+
+            winnerImage.src =
+                image.src;
+
+        }
 
 
         // ----------------------------------------------------
-        // L'image est placée APRES le libellé du winner
+        // IMAGE SOUS LE TEXTE
         // ----------------------------------------------------
+
+        imageContainer.appendChild(
+            winnerImage
+        );
+
 
         result.appendChild(
-            winnerImage
+            imageContainer
         );
 
     }
@@ -3108,7 +3126,6 @@ function showResult(
     );
 
 }
-
 
 // ============================================================
 // LANCEMENT
