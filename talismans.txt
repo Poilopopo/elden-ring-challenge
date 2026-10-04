@@ -1,5 +1,13 @@
-Talisman 1
-Talisman 2
-Talisman 3
-Talisman 4
-Daedicar's Woe|50
+Sceau scarifié de Radagon|Radagon's Scarseal
+Sceau meurtri de Radagon|Radagon's Soreseal
+Sceau scarifié de Marika|Marika's Scarseal
+Scorpion sacré|Sacred Scorpion Charm
+Scorpion de magie|Magic Scorpion Charm
+Scorpion de feu|Fire Scorpion Charm
+Scorpion de foudre|Lightning Scorpion Charm
+Lame de pierre d'éclat primordiale|Primal Glintstone Blade
+Malheur de Daedicar|Daedicar's Woe
+Talisman à plume du Creuset|Crucible Feather Talisman
+Tous les creusets|Talisman of All Crucibles
+Talisman à plume raffiné du Creuset|Fine Crucible Feather Talisman
+Poussière d'étoile chérie|Beloved Stardust
