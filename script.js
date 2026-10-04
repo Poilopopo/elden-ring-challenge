@@ -1638,9 +1638,25 @@ function getInitialItems(items) {
         );
 
 
+    // --------------------------------------------------------
+    // IMPORTANT :
+    //
+    // La machine dessine TOUJOURS 7 éléments :
+    //
+    // -3
+    // -2
+    // -1
+    //  0  <- centre
+    // +1
+    // +2
+    // +3
+    //
+    // On fournit donc 7 éléments dès le chargement.
+    // --------------------------------------------------------
+
     for (
         let i = 0;
-        i < 5;
+        i < 7;
         i++
     ) {
 
@@ -1660,7 +1676,6 @@ function getInitialItems(items) {
     return result;
 
 }
-
 
 // ============================================================
 // ONGLET
