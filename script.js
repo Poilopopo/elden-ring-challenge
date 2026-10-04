@@ -1,1083 +1,371 @@
-// ============================================================
-// ELDEN RING CHALLENGE
-// MACHINE A SOUS
-// FR / EN
-// ============================================================
+// ============================================
+// ELDEN RING CHALLENGE - SCRIPT
+// VERSION FR / EN
+// ============================================
 
-
-// ============================================================
+// ============================================
 // LANGUE
-// ============================================================
+// ============================================
 
-let currentLanguage =
-    localStorage.getItem("eldenRingLanguage") ||
-    "fr";
-
-
-// ============================================================
-// TRADUCTIONS
-// ============================================================
+let currentLanguage = localStorage.getItem("eldenRingLanguage") || "fr";
 
 const translations = {
-
     fr: {
+        htmlLang: "fr",
 
-        title:
-            "CHALLENGE RANDOM",
+        challengeRandom: "CHALLENGE RANDOM",
+        subtitle: "Que la Grâce décide de votre destin...",
 
-        subtitle:
-            "Que la Grâce décide de votre destin...",
+        challenge: "⚔ CHALLENGE",
+        talisman: "✦ TALISMAN ✦",
+        weapon: "✦ ARME ✦",
+        objective: "✦ OBJECTIF ✦",
 
-        challenge:
-            "⚔ CHALLENGE",
+        spinAll: "⚔ TOURNER LES ROUES ⚔",
+        destinyAll: "⚔ DESTIN EN COURS... ⚔",
 
-        talisman:
-            "✦ TALISMAN",
+        spin: "✦ TOURNER ✦",
+        destiny: "DESTIN...",
 
-        arme:
-            "✦ ARME",
-
-        objectif:
-            "✦ OBJECTIF",
-
-        spinAll:
-            "⚔ TOURNER LES ROUES ⚔",
-
-        fate:
-            "⚔ DESTIN EN COURS... ⚔",
-
-        spin:
-            "✦ TOURNER ✦",
-
-        destiny:
-            "DESTIN..."
-
+        footer: "— ELDEN RING CHALLENGE —"
     },
 
-
     en: {
+        htmlLang: "en",
 
-        title:
-            "RANDOM CHALLENGE",
+        challengeRandom: "RANDOM CHALLENGE",
+        subtitle: "May Grace decide your fate...",
 
-        subtitle:
-            "May Grace decide your fate...",
+        challenge: "⚔ CHALLENGE",
+        talisman: "✦ TALISMAN ✦",
+        weapon: "✦ WEAPON ✦",
+        objective: "✦ OBJECTIVE ✦",
 
-        challenge:
-            "⚔ CHALLENGE",
+        spinAll: "⚔ SPIN THE WHEELS ⚔",
+        destinyAll: "⚔ FATE IN PROGRESS... ⚔",
 
-        talisman:
-            "✦ TALISMAN",
+        spin: "✦ SPIN ✦",
+        destiny: "FATE...",
 
-        arme:
-            "✦ WEAPON",
-
-        objectif:
-            "✦ OBJECTIVE",
-
-        spinAll:
-            "⚔ SPIN THE WHEELS ⚔",
-
-        fate:
-            "⚔ FATE IN PROGRESS... ⚔",
-
-        spin:
-            "✦ SPIN ✦",
-
-        destiny:
-            "FATE..."
-
+        footer: "— ELDEN RING CHALLENGE —"
     }
-
 };
 
 
-// ============================================================
-// NOM D'UN ITEM SELON LA LANGUE
-// ============================================================
+// ============================================
+// OUTIL TRADUCTION
+// ============================================
 
-function getItemName(item) {
-
-    if (!item) {
-
-        return "";
-
-    }
-
-
-    if (
-        currentLanguage === "en"
-    ) {
-
-        return item.nameEN;
-
-    }
-
-
-    return item.nameFR;
-
+function t(key) {
+    return translations[currentLanguage][key] || key;
 }
 
 
-// ============================================================
+// ============================================
 // CHANGEMENT DE LANGUE
-// ============================================================
+// ============================================
 
 function setLanguage(language) {
 
-    if (
-        language !== "fr" &&
-        language !== "en"
-    ) {
+    if (!translations[language]) return;
 
-        return;
+    currentLanguage = language;
 
-    }
+    localStorage.setItem("eldenRingLanguage", language);
 
+    document.documentElement.lang = language;
 
-    currentLanguage =
-        language;
-
-
-    localStorage.setItem(
-        "eldenRingLanguage",
-        currentLanguage
-    );
-
-
-    updateInterface();
-
-
-    updateLanguageButtons();
-
-
+    updateInterfaceLanguage();
     redrawAllWheels();
-
 }
 
 
-// ============================================================
-// MISE A JOUR DE L'INTERFACE
-// ============================================================
+// ============================================
+// BOUTON FR / EN
+// ============================================
 
-function updateInterface() {
+function toggleLanguage() {
 
-    const t =
-        translations[
-            currentLanguage
-        ];
+    const newLanguage = currentLanguage === "fr" ? "en" : "fr";
 
-
-    // --------------------------------------------------------
-    // HEADER
-    // --------------------------------------------------------
-
-    const h2 =
-        document.querySelector(
-            "header h2"
-        );
-
-
-    if (h2) {
-
-        h2.textContent =
-            t.title;
-
-    }
-
-
-    const subtitle =
-        document.querySelector(
-            "header .subtitle"
-        );
-
-
-    if (subtitle) {
-
-        subtitle.textContent =
-            t.subtitle;
-
-    }
-
-
-    // --------------------------------------------------------
-    // ONGLET
-    // --------------------------------------------------------
-
-    const tabs =
-        document.querySelectorAll(
-            ".tab"
-        );
-
-
-    tabs.forEach(
-        function(tab) {
-
-            const target =
-                tab.dataset.tab;
-
-
-            if (
-                translations[
-                    currentLanguage
-                ][target]
-            ) {
-
-                tab.textContent =
-                    translations[
-                        currentLanguage
-                    ][target];
-
-            }
-
-        }
-    );
-
-
-    // --------------------------------------------------------
-    // TITRES DES MACHINES
-    // --------------------------------------------------------
-
-    document
-        .querySelectorAll(
-            ".wheel-card h3, .single-wheel-card h3"
-        )
-        .forEach(
-            function(title) {
-
-                const text =
-                    title.textContent
-                        .replace(
-                            /✦/g,
-                            ""
-                        )
-                        .trim()
-                        .toLowerCase();
-
-
-                if (
-                    text.includes("talisman") ||
-                    text.includes("talisman")
-                ) {
-
-                    title.textContent =
-                        t.talisman;
-
-                }
-
-                else if (
-                    text.includes("arme") ||
-                    text.includes("weapon")
-                ) {
-
-                    title.textContent =
-                        t.arme;
-
-                }
-
-                else if (
-                    text.includes("objectif") ||
-                    text.includes("objective")
-                ) {
-
-                    title.textContent =
-                        t.objectif;
-
-                }
-
-            }
-        );
-
-
-    // --------------------------------------------------------
-    // BOUTON PRINCIPAL
-    // --------------------------------------------------------
-
-    const spinAllButton =
-        document.getElementById(
-            "spin-all"
-        );
-
-
-    if (
-        spinAllButton &&
-        !spinAllButton.disabled
-    ) {
-
-        spinAllButton.textContent =
-            t.spinAll;
-
-    }
-
-
-    // --------------------------------------------------------
-    // BOUTONS SOLO
-    // --------------------------------------------------------
-
-    document
-        .querySelectorAll(
-            ".single-spin"
-        )
-        .forEach(
-            function(button) {
-
-                if (
-                    !button.disabled
-                ) {
-
-                    button.textContent =
-                        t.spin;
-
-                }
-
-            }
-        );
-
-
-    // --------------------------------------------------------
-    // FOOTER
-    // --------------------------------------------------------
-
-    const footer =
-        document.querySelector(
-            "footer"
-        );
-
-
-    if (footer) {
-
-        const spans =
-            footer.querySelectorAll(
-                "span"
-            );
-
-
-        footer.textContent = "";
-
-
-        const left =
-            document.createElement(
-                "span"
-            );
-
-
-        left.textContent =
-            "—";
-
-
-        const text =
-            document.createTextNode(
-                " ELDEN RING " +
-                (
-                    currentLanguage === "fr"
-                        ? "CHALLENGE"
-                        : "CHALLENGE"
-                ) +
-                " "
-            );
-
-
-        const right =
-            document.createElement(
-                "span"
-            );
-
-
-        right.textContent =
-            "—";
-
-
-        footer.appendChild(
-            left
-        );
-
-
-        footer.appendChild(
-            text
-        );
-
-
-        footer.appendChild(
-            right
-        );
-
-    }
-
+    setLanguage(newLanguage);
 }
 
 
-// ============================================================
-// BOUTONS DE LANGUE
-// ============================================================
-
-function updateLanguageButtons() {
-
-    const frButton =
-        document.getElementById(
-            "lang-fr"
-        );
-
-
-    const enButton =
-        document.getElementById(
-            "lang-en"
-        );
-
-
-    if (frButton) {
-
-        frButton.classList.toggle(
-            "active",
-            currentLanguage === "fr"
-        );
-
-    }
-
-
-    if (enButton) {
-
-        enButton.classList.toggle(
-            "active",
-            currentLanguage === "en"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// REDESSIN DES ROUES
-// ============================================================
+// ============================================
+// PARSING DES FICHIERS TXT
+// ============================================
 //
-// Important :
-// On ne relance PAS les roues.
+// Formats acceptés:
 //
-// On redessine simplement les mêmes éléments
-// avec la langue sélectionnée.
-// ============================================================
+// anglais|français
+// anglais|français|chance
+// anglais|français|image.png
+// anglais|français|chance|image.png
+// anglais|français|image.png|chance
+//
+// La chance est détectée automatiquement.
+// ============================================
 
-function redrawAllWheels() {
+function loadItems(filename) {
 
-    Object
-        .values(
-            wheels
-        )
-        .forEach(
-            function(wheel) {
+    return fetch(filename)
+        .then(response => {
 
-                if (
-                    wheel.currentItems &&
-                    wheel.currentItems.length
-                ) {
-
-                    drawSlotMachine(
-                        wheel,
-                        wheel.currentItems,
-                        wheel.currentOffset || 0,
-                        false,
-                        wheel.currentStartSequenceIndex || 0
-                    );
-
-                }
-
+            if (!response.ok) {
+                throw new Error(`Impossible de charger ${filename}`);
             }
-        );
 
+            return response.text();
+        })
+        .then(text => {
 
-    Object
-        .values(
-            singleWheels
-        )
-        .forEach(
-            function(wheel) {
+            return text
+                .split("\n")
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith("#"))
+                .map(line => {
 
-                if (
-                    wheel.currentItems &&
-                    wheel.currentItems.length
-                ) {
+                    const parts = line.split("|").map(part => part.trim());
 
-                    drawSlotMachine(
-                        wheel,
-                        wheel.currentItems,
-                        wheel.currentOffset || 0,
-                        false,
-                        wheel.currentStartSequenceIndex || 0
-                    );
+                    const englishName = parts[0] || "";
+                    const frenchName = parts[1] || englishName;
 
-                }
+                    let weight = 50;
+                    let image = "";
 
-            }
-        );
+                    // Recherche automatique du poids
+                    for (let i = 2; i < parts.length; i++) {
 
-}
+                        const value = parts[i];
 
-
-// ============================================================
-// CHARGEMENT DES FICHIERS TXT
-// ============================================================
-//
-// FORMAT :
-//
-// nom_fr|nom_en|chance|image.png
-//
-// Exemple :
-//
-// Talisman tortue|Green Turtle Talisman|50|tortue.png
-//
-// Chance facultative.
-// Image facultative.
-// ============================================================
-
-async function loadItems(filename) {
-
-    try {
-
-        const response =
-            await fetch(filename);
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Impossible de charger " +
-                filename
-            );
-
-        }
-
-
-        const text =
-            await response.text();
-
-
-        return text
-
-            .split(/\r?\n/)
-
-            .map(
-                function(line) {
-
-                    return line.trim();
-
-                }
-            )
-
-            // ------------------------------------------------
-            // Ignore les lignes vides
-            // ------------------------------------------------
-
-            .filter(
-                function(line) {
-
-                    return line.length > 0;
-
-                }
-            )
-
-            // ------------------------------------------------
-            // Ignore les commentaires
-            // ------------------------------------------------
-
-            .filter(
-                function(line) {
-
-                    return !line.startsWith("#");
-
-                }
-            )
-
-            .map(
-                function(line) {
-
-                    const parts =
-                        line.split("|");
-
-
-                    // ------------------------------------------------
-                    // NOM FRANCAIS
-                    // ------------------------------------------------
-
-                    const nameFR =
-                        (
-                            parts[0] ||
-                            ""
-                        ).trim();
-
-
-                    // ------------------------------------------------
-                    // NOM ANGLAIS
-                    // ------------------------------------------------
-
-                    const nameEN =
-                        (
-                            parts[1] ||
-                            nameFR
-                        ).trim();
-
-
-                    // ------------------------------------------------
-                    // POIDS PAR DEFAUT
-                    // ------------------------------------------------
-
-                    let weight =
-                        50;
-
-
-                    if (
-                        parts.length > 2 &&
-                        parts[2].trim() !== ""
-                    ) {
-
-                        const parsedWeight =
-                            Number(
-                                parts[2].trim()
-                            );
-
-
-                        if (
-                            Number.isFinite(
-                                parsedWeight
-                            ) &&
-                            parsedWeight > 0
-                        ) {
-
-                            weight =
-                                parsedWeight;
-
+                        if (value !== "" && !isNaN(value)) {
+                            weight = parseFloat(value);
                         }
-
+                        else if (value !== "") {
+                            image = value;
+                        }
                     }
-
-
-                    // ------------------------------------------------
-                    // IMAGE
-                    // ------------------------------------------------
-
-                    let image =
-                        "";
-
-
-                    if (
-                        parts.length > 3
-                    ) {
-
-                        image =
-                            parts[3].trim();
-
-                    }
-
 
                     return {
-
-                        nameFR:
-                            nameFR,
-
-                        nameEN:
-                            nameEN,
-
-                        weight:
-                            weight,
-
-                        image:
-                            image
-
+                        name: frenchName,
+                        fr: frenchName,
+                        en: englishName,
+                        weight: weight,
+                        image: image
                     };
-
-                }
-            );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Erreur avec " +
-            filename +
-            ":",
-            error
-        );
-
-
-        return [];
-
-    }
-
+                });
+        });
 }
 
 
-// ============================================================
-// DONNEES
-// ============================================================
+// ============================================
+// NOM SELON LA LANGUE
+// ============================================
+
+function getItemName(item) {
+
+    if (!item) return "";
+
+    return currentLanguage === "en"
+        ? item.en
+        : item.fr;
+}
+
+
+// ============================================
+// DONNÉES
+// ============================================
 
 let talismans = [];
-
 let armes = [];
-
 let objectifs = [];
 
 
-// ============================================================
-// MACHINES PRINCIPALES
-// ============================================================
+// ============================================
+// ROUES PRINCIPALES
+// ============================================
 
 const wheels = {
 
     talisman: {
+        canvas: document.getElementById("wheel-talisman"),
+        items: [],
+        spinning: false,
+        selectedItem: null,
+        animationId: null,
 
-        canvas:
-            document.getElementById(
-                "wheel-talisman"
-            ),
-
-        items:
-            talismans,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
+        lastVisibleItems: null,
+        lastOffset: 0,
+        lastStartSequenceIndex: 0
     },
-
 
     arme: {
+        canvas: document.getElementById("wheel-arme"),
+        items: [],
+        spinning: false,
+        selectedItem: null,
+        animationId: null,
 
-        canvas:
-            document.getElementById(
-                "wheel-arme"
-            ),
-
-        items:
-            armes,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
+        lastVisibleItems: null,
+        lastOffset: 0,
+        lastStartSequenceIndex: 0
     },
 
-
     objectif: {
+        canvas: document.getElementById("wheel-objectif"),
+        items: [],
+        spinning: false,
+        selectedItem: null,
+        animationId: null,
 
-        canvas:
-            document.getElementById(
-                "wheel-objectif"
-            ),
-
-        items:
-            objectifs,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
+        lastVisibleItems: null,
+        lastOffset: 0,
+        lastStartSequenceIndex: 0
     }
-
 };
 
 
-// ============================================================
-// MACHINES INDIVIDUELLES
-// ============================================================
+// ============================================
+// ROUES INDIVIDUELLES
+// ============================================
 
 const singleWheels = {
 
     talisman: {
+        canvas: document.getElementById("single-wheel-talisman"),
+        items: [],
+        spinning: false,
+        selectedItem: null,
+        animationId: null,
 
-        canvas:
-            document.getElementById(
-                "single-wheel-talisman"
-            ),
-
-        items:
-            talismans,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
+        lastVisibleItems: null,
+        lastOffset: 0,
+        lastStartSequenceIndex: 0
     },
-
 
     arme: {
+        canvas: document.getElementById("single-wheel-arme"),
+        items: [],
+        spinning: false,
+        selectedItem: null,
+        animationId: null,
 
-        canvas:
-            document.getElementById(
-                "single-wheel-arme"
-            ),
-
-        items:
-            armes,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
+        lastVisibleItems: null,
+        lastOffset: 0,
+        lastStartSequenceIndex: 0
     },
 
-
     objectif: {
+        canvas: document.getElementById("single-wheel-objectif"),
+        items: [],
+        spinning: false,
+        selectedItem: null,
+        animationId: null,
 
-        canvas:
-            document.getElementById(
-                "single-wheel-objectif"
-            ),
-
-        items:
-            objectifs,
-
-        spinning:
-            false,
-
-        selectedItem:
-            null,
-
-        animationId:
-            null,
-
-        currentItems:
-            null,
-
-        currentOffset:
-            0,
-
-        currentStartSequenceIndex:
-            0
-
+        lastVisibleItems: null,
+        lastOffset: 0,
+        lastStartSequenceIndex: 0
     }
-
 };
 
 
-// ============================================================
+// ============================================
 // COULEURS
-// ============================================================
+// ============================================
 
 const slotColors = [
-
-    "#302c22",
-
-    "#3b3527",
-
-    "#292720",
-
-    "#443b2b",
-
-    "#332f25",
-
-    "#403827"
-
+    "#241c0d",
+    "#302511",
+    "#3b2d14",
+    "#2b2110",
+    "#342711",
+    "#211a0c"
 ];
 
 
-// ============================================================
-// TIRAGE PONDERE
-// ============================================================
+// ============================================
+// CHOIX PONDÉRÉ
+// ============================================
 
 function chooseWeightedItem(items) {
 
-    if (
-        !items ||
-        !items.length
-    ) {
+    const totalWeight = items.reduce(
+        (sum, item) => sum + item.weight,
+        0
+    );
 
-        return null;
+    let random = Math.random() * totalWeight;
 
-    }
+    for (const item of items) {
 
+        random -= item.weight;
 
-    const totalWeight =
-        items.reduce(
-            function(total, item) {
-
-                return total +
-                    item.weight;
-
-            },
-            0
-        );
-
-
-    let random =
-        Math.random() *
-        totalWeight;
-
-
-    for (
-        const item of items
-    ) {
-
-        random -=
-            item.weight;
-
-
-        if (
-            random <= 0
-        ) {
-
+        if (random <= 0) {
             return item;
-
         }
-
     }
 
-
-    return items[
-        items.length - 1
-    ];
-
+    return items[items.length - 1];
 }
 
 
-// ============================================================
-// OUTILS
-// ============================================================
+// ============================================
+// TAILLE TEXTE
+// ============================================
 
 function getFontSize(canvas) {
 
-    if (
-        canvas.width >= 600
-    ) {
-
-        return 25;
-
-    }
-
-
-    return 21;
-
+    return canvas.width >= 600 ? 25 : 21;
 }
 
 
-function getVisibleRows(canvas) {
+// ============================================
+// LIGNES VISIBLES
+// ============================================
+
+function getVisibleRows() {
 
     return 5;
-
 }
 
+
+// ============================================
+// HAUTEUR D'UNE LIGNE
+// ============================================
 
 function getRowHeight(canvas) {
 
     return canvas.height / 5;
-
 }
 
 
-function truncateText(
-    ctx,
-    text,
-    maxWidth
-) {
+// ============================================
+// TRONQUER LE TEXTE
+// ============================================
 
-    if (
-        ctx.measureText(
-            text
-        ).width <= maxWidth
-    ) {
+function truncateText(ctx, text, maxWidth) {
 
+    if (ctx.measureText(text).width <= maxWidth) {
         return text;
-
     }
 
-
-    let result =
-        text;
-
+    let result = text;
 
     while (
-        result.length > 1 &&
-        ctx.measureText(
-            result + "…"
-        ).width > maxWidth
+        result.length > 0 &&
+        ctx.measureText(result + "...").width > maxWidth
     ) {
-
-        result =
-            result.substring(
-                0,
-                result.length - 1
-            );
-
+        result = result.slice(0, -1);
     }
 
-
-    return result + "…";
-
+    return result + "...";
 }
 
 
-// ============================================================
-// DESSIN DE LA MACHINE A SOUS
-// ============================================================
+// ============================================
+// DESSIN DE LA ROULETTE
+// ============================================
 
 function drawSlotMachine(
     wheel,
@@ -1087,80 +375,53 @@ function drawSlotMachine(
     startSequenceIndex
 ) {
 
-    const canvas =
-        wheel.canvas;
+    const canvas = wheel.canvas;
 
+    if (!canvas) return;
 
-    if (!canvas) {
+    const ctx = canvas.getContext("2d");
 
-        return;
+    const width = canvas.width;
+    const height = canvas.height;
 
-    }
+    const rowHeight = getRowHeight(canvas);
+    const centerY = height / 2;
 
+    // Sauvegarde pour pouvoir redessiner
+    // immédiatement lors du changement de langue
+    wheel.lastVisibleItems = visibleItems.slice();
+    wheel.lastOffset = offset;
+    wheel.lastStartSequenceIndex = startSequenceIndex;
 
-    // --------------------------------------------------------
-    // MEMORISATION DE L'AFFICHAGE ACTUEL
-    // --------------------------------------------------------
-
-    wheel.currentItems =
-        visibleItems.slice();
-
-
-    wheel.currentOffset =
-        offset;
-
-
-    wheel.currentStartSequenceIndex =
-        startSequenceIndex;
-
-
-    const ctx =
-        canvas.getContext("2d");
-
-
-    const width =
-        canvas.width;
-
-
-    const height =
-        canvas.height;
-
-
-    ctx.clearRect(
-        0,
-        0,
-        width,
-        height
-    );
-
-
-    // --------------------------------------------------------
+    // ----------------------------------------
     // FOND
-    // --------------------------------------------------------
+    // ----------------------------------------
 
-    ctx.fillStyle =
-        "#110f0b";
+    ctx.clearRect(0, 0, width, height);
 
+    ctx.fillStyle = "#0b0905";
+    ctx.fillRect(0, 0, width, height);
 
-    ctx.fillRect(
-        0,
-        0,
-        width,
-        height
+    // ----------------------------------------
+    // CADRE EXTÉRIEUR
+    // ----------------------------------------
+
+    ctx.strokeStyle = "#c7a85a";
+    ctx.lineWidth = 3;
+
+    ctx.strokeRect(
+        2,
+        2,
+        width - 4,
+        height - 4
     );
 
+    // ----------------------------------------
+    // CADRE INTÉRIEUR
+    // ----------------------------------------
 
-    // --------------------------------------------------------
-    // CADRE EXTERIEUR
-    // --------------------------------------------------------
-
-    ctx.strokeStyle =
-        "#b99a52";
-
-
-    ctx.lineWidth =
-        8;
-
+    ctx.strokeStyle = "#8e7337";
+    ctx.lineWidth = 1;
 
     ctx.strokeRect(
         8,
@@ -1169,804 +430,415 @@ function drawSlotMachine(
         height - 16
     );
 
-
-    ctx.strokeStyle =
-        "#5d4d2e";
-
-
-    ctx.lineWidth =
-        3;
-
-
-    ctx.strokeRect(
-        20,
-        20,
-        width - 40,
-        height - 40
-    );
-
-
-    const rowHeight =
-        getRowHeight(canvas);
-
-
-    const centerY =
-        height / 2;
-
-
-    const fontSize =
-        getFontSize(canvas);
-
-
-    // --------------------------------------------------------
-    // ZONE DE DEFILEMENT
-    // --------------------------------------------------------
+    // ----------------------------------------
+    // ZONE DE CLIPPING
+    // ----------------------------------------
 
     ctx.save();
 
-
-    ctx.fillStyle =
-        "#1a1710";
-
-
-    ctx.fillRect(
-        24,
-        24,
-        width - 48,
-        height - 48
-    );
-
-
     ctx.beginPath();
 
-
     ctx.rect(
-        24,
-        24,
-        width - 48,
-        height - 48
+        10,
+        10,
+        width - 20,
+        height - 20
     );
-
 
     ctx.clip();
 
+    // ----------------------------------------
+    // ÉLÉMENTS
+    // ----------------------------------------
 
-    // --------------------------------------------------------
-    // DESSIN DES 7 ELEMENTS
-    // --------------------------------------------------------
+    const fontSize = getFontSize(canvas);
 
-    for (
-        let i = 0;
-        i < visibleItems.length;
-        i++
-    ) {
+    ctx.font =
+        `bold ${fontSize}px Cinzel, Georgia, serif`;
 
-        const item =
-            visibleItems[i];
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
-
-        if (!item) {
-
-            continue;
-
-        }
-
+    for (let i = -3; i <= 3; i++) {
 
         const sequenceIndex =
-            startSequenceIndex +
-            i;
+            startSequenceIndex + i;
 
+        if (
+            sequenceIndex < 0 ||
+            sequenceIndex >= visibleItems.length
+        ) {
+            continue;
+        }
+
+        const item = visibleItems[sequenceIndex];
 
         const y =
             centerY +
-            (
-                i - 3
-            ) *
-            rowHeight -
+            i * rowHeight -
             offset;
 
-
-        // ----------------------------------------------------
-        // COULEUR LIEE A L'ITEM
-        // ----------------------------------------------------
-
-        let itemIndex =
-            wheel.items.indexOf(
-                item
-            );
-
-
-        if (
-            itemIndex < 0
-        ) {
-
-            itemIndex =
-                sequenceIndex;
-
-        }
-
+        const itemIndex =
+            wheel.items.indexOf(item);
 
         const colorIndex =
-            (
-                itemIndex %
-                slotColors.length +
-                slotColors.length
-            ) %
-            slotColors.length;
+            itemIndex >= 0
+                ? itemIndex % slotColors.length
+                : 0;
 
-
+        // Fond de la ligne
         ctx.fillStyle =
-            slotColors[
-                colorIndex
-            ];
-
+            slotColors[colorIndex];
 
         ctx.fillRect(
-            28,
-            y -
-                rowHeight / 2 +
-                2,
-            width - 56,
-            rowHeight - 4
+            10,
+            y - rowHeight / 2,
+            width - 20,
+            rowHeight
         );
 
+        // ------------------------------------
+        // CENTRE PLUS LUMINEUX
+        // ------------------------------------
 
-        // ----------------------------------------------------
+        if (i === 0) {
+
+            ctx.fillStyle = "rgba(190, 150, 60, 0.20)";
+
+            ctx.fillRect(
+                10,
+                y - rowHeight / 2,
+                width - 20,
+                rowHeight
+            );
+        }
+
+        // ------------------------------------
         // TEXTE
-        // ----------------------------------------------------
+        // ------------------------------------
 
-        ctx.font =
-            "600 " +
-            fontSize +
-            "px Cinzel, Georgia, serif";
+        const name =
+            getItemName(item);
 
+        const maxTextWidth =
+            width - 70;
 
-        ctx.textAlign =
-            "center";
-
-
-        ctx.textBaseline =
-            "middle";
-
-
-        const text =
+        const displayText =
             truncateText(
                 ctx,
-                getItemName(item),
-                width - 90
+                name,
+                maxTextWidth
             );
 
-
-        const distanceFromCenter =
-            Math.abs(
-                y -
-                centerY
-            );
-
-
-        if (
-            distanceFromCenter <
-            rowHeight * 0.35
-        ) {
-
-            ctx.fillStyle =
-                "#f0d98f";
-
-        }
-
-        else {
-
-            ctx.fillStyle =
-                "#9b895c";
-
-        }
-
+        ctx.fillStyle =
+            i === 0
+                ? "#f3d27a"
+                : "#d8c28a";
 
         ctx.fillText(
-            text,
+            displayText,
             width / 2,
             y
         );
 
-
-        // ----------------------------------------------------
-        // SEPARATION ENTRE LES CASES
-        // ----------------------------------------------------
+        // ------------------------------------
+        // SÉPARATEURS
+        // ------------------------------------
 
         ctx.strokeStyle =
-            "#806c3e";
+            "rgba(199, 168, 90, 0.35)";
 
-
-        ctx.lineWidth =
-            1;
-
+        ctx.lineWidth = 1;
 
         ctx.beginPath();
 
-
         ctx.moveTo(
-            35,
-            y +
-                rowHeight / 2
+            10,
+            y - rowHeight / 2
         );
-
 
         ctx.lineTo(
-            width - 35,
-            y +
-                rowHeight / 2
+            width - 10,
+            y - rowHeight / 2
         );
 
-
         ctx.stroke();
-
     }
-
 
     ctx.restore();
 
+    // ----------------------------------------
+    // CADRE DU RÉSULTAT CENTRAL
+    // ----------------------------------------
 
-    // --------------------------------------------------------
-    // CADRE DE LA CASE CENTRALE
-    // --------------------------------------------------------
-
-    const centralTop =
-        centerY -
-        rowHeight / 2;
-
-
-    ctx.fillStyle =
-        "rgba(185,154,82,0.10)";
-
-
-    ctx.fillRect(
-        22,
-        centralTop,
-        width - 44,
-        rowHeight
-    );
-
-
-    ctx.strokeStyle =
-        "#c8a95c";
-
-
-    ctx.lineWidth =
-        4;
-
+    ctx.strokeStyle = "#d8b75a";
+    ctx.lineWidth = 2;
 
     ctx.strokeRect(
-        22,
-        centralTop,
-        width - 44,
+        10,
+        centerY - rowHeight / 2,
+        width - 20,
         rowHeight
     );
-
 }
 
 
-// ============================================================
-// CREATION DE LA LISTE DE DEFILEMENT
-// ============================================================
+// ============================================
+// CRÉATION DE LA SÉQUENCE
+// ============================================
 
-function createSpinSequence(
-    items,
-    selectedItem
-) {
+function createSpinSequence(items, selectedItem) {
 
     const sequence = [];
 
+    // ----------------------------------------
+    // 3 éléments aléatoires au début
+    // ----------------------------------------
 
-    if (
-        !items ||
-        !items.length
-    ) {
-
-        return sequence;
-
-    }
-
-
-    // --------------------------------------------------------
-    // PETIT DEPART ALEATOIRE
-    // --------------------------------------------------------
-
-    for (
-        let i = 0;
-        i < 3;
-        i++
-    ) {
-
-        const randomIndex =
-            Math.floor(
-                Math.random() *
-                items.length
-            );
-
+    for (let i = 0; i < 3; i++) {
 
         sequence.push(
             items[
-                randomIndex
+                Math.floor(
+                    Math.random() * items.length
+                )
             ]
         );
-
     }
 
-
-    // --------------------------------------------------------
-    // PHASE DE SPIN
-    // --------------------------------------------------------
+    // ----------------------------------------
+    // NOMBRE DE TOURS
+    // ----------------------------------------
 
     const spinCount =
-        Math.max(
-            35,
-            Math.min(
-                70,
-                Math.floor(
-                    items.length * 0.4
-                )
-            )
-        );
+        35 + Math.floor(Math.random() * 36);
 
+    // ----------------------------------------
+    // ANIMATION
+    // ----------------------------------------
 
-    for (
-        let i = 0;
-        i < spinCount;
-        i++
-    ) {
-
-        const randomIndex =
-            Math.floor(
-                Math.random() *
-                items.length
-            );
-
+    for (let i = 0; i < spinCount; i++) {
 
         sequence.push(
             items[
-                randomIndex
+                Math.floor(
+                    Math.random() * items.length
+                )
             ]
         );
-
     }
 
-
-    // --------------------------------------------------------
-    // RESULTAT
-    // --------------------------------------------------------
+    // ----------------------------------------
+    // ON S'ASSURE QUE LE RÉSULTAT EST
+    // EXACTEMENT AU CENTRE
+    // ----------------------------------------
 
     const selectedIndex =
-        items.indexOf(
-            selectedItem
+        sequence.length;
+
+    sequence.push(selectedItem);
+
+    // ----------------------------------------
+    // 3 ÉLÉMENTS APRÈS
+    // ----------------------------------------
+
+    const selectedItemIndex =
+        items.indexOf(selectedItem);
+
+    for (let i = 1; i <= 3; i++) {
+
+        sequence.push(
+            items[
+                (
+                    selectedItemIndex + i
+                ) % items.length
+            ]
         );
-
-
-    if (
-        selectedIndex < 0
-    ) {
-
-        return sequence;
-
     }
 
-
-    const before3 =
-        items[
-            (
-                selectedIndex -
-                3 +
-                items.length
-            ) %
-            items.length
-        ];
-
-
-    const before2 =
-        items[
-            (
-                selectedIndex -
-                2 +
-                items.length
-            ) %
-            items.length
-        ];
-
-
-    const before1 =
-        items[
-            (
-                selectedIndex -
-                1 +
-                items.length
-            ) %
-            items.length
-        ];
-
-
-    const after1 =
-        items[
-            (
-                selectedIndex +
-                1
-            ) %
-            items.length
-        ];
-
-
-    const after2 =
-        items[
-            (
-                selectedIndex +
-                2
-            ) %
-            items.length
-        ];
-
-
-    const after3 =
-        items[
-            (
-                selectedIndex +
-                3
-            ) %
-            items.length
-        ];
-
-
-    sequence.push(
-        before3
-    );
-
-
-    sequence.push(
-        before2
-    );
-
-
-    sequence.push(
-        before1
-    );
-
-
-    sequence.push(
-        selectedItem
-    );
-
-
-    sequence.push(
-        after1
-    );
-
-
-    sequence.push(
-        after2
-    );
-
-
-    sequence.push(
-        after3
-    );
-
-
-    return sequence;
-
+    return {
+        sequence,
+        selectedIndex
+    };
 }
 
 
-// ============================================================
-// ANIMATION MACHINE A SOUS
-// ============================================================
+// ============================================
+// ANIMATION D'UNE ROUE
+// ============================================
 
-function spinSlotMachine(
-    type,
-    wheelCollection
-) {
+function spinSlotMachine(type, wheelCollection) {
 
     const wheel =
         wheelCollection[type];
 
-
-    if (
-        !wheel ||
-        wheel.spinning ||
-        !wheel.items ||
-        !wheel.items.length
-    ) {
-
+    if (!wheel || wheel.spinning) {
         return;
-
     }
 
+    if (!wheel.items.length) {
+        return;
+    }
 
-    wheel.spinning =
-        true;
+    wheel.spinning = true;
 
-
-    // --------------------------------------------------------
-    // CHOIX DU RESULTAT
-    // --------------------------------------------------------
+    // ----------------------------------------
+    // CHOIX PONDÉRÉ
+    // ----------------------------------------
 
     const selectedItem =
-        chooseWeightedItem(
-            wheel.items
-        );
-
+        chooseWeightedItem(wheel.items);
 
     wheel.selectedItem =
         selectedItem;
 
+    // ----------------------------------------
+    // SÉQUENCE
+    // ----------------------------------------
 
-    // --------------------------------------------------------
-    // CREATION DE LA SEQUENCE
-    // --------------------------------------------------------
-
-    const sequence =
+    const {
+        sequence,
+        selectedIndex
+    } =
         createSpinSequence(
             wheel.items,
             selectedItem
         );
 
-
-    if (
-        !sequence.length
-    ) {
-
-        wheel.spinning =
-            false;
-
-        return;
-
-    }
-
-
-    const canvas =
-        wheel.canvas;
-
-
-    const rowHeight =
-        getRowHeight(
-            canvas
-        );
-
-
-    // --------------------------------------------------------
-    // POSITION DU RESULTAT
-    // --------------------------------------------------------
+    // ----------------------------------------
+    // INDEX DU CENTRE
+    // ----------------------------------------
 
     const selectedSequenceIndex =
-        sequence.length -
-        4;
+        selectedIndex;
 
+    // ----------------------------------------
+    // DISTANCE
+    // ----------------------------------------
+
+    const rowHeight =
+        getRowHeight(wheel.canvas);
 
     const totalDistance =
         selectedSequenceIndex *
         rowHeight;
 
+    // ----------------------------------------
+    // DURÉE
+    // ----------------------------------------
 
-    // --------------------------------------------------------
-    // DUREE
-    // --------------------------------------------------------
-
-    const duration =
-        4300;
-
+    const duration = 4300;
 
     const startTime =
         performance.now();
 
+    // ----------------------------------------
+    // ANIMATION
+    // ----------------------------------------
 
-    function animate(now) {
+    function animate(currentTime) {
 
         const elapsed =
-            now -
-            startTime;
-
+            currentTime - startTime;
 
         let progress =
-            elapsed /
-            duration;
+            Math.min(
+                elapsed / duration,
+                1
+            );
 
-
-        if (
-            progress > 1
-        ) {
-
-            progress = 1;
-
-        }
-
-
-        // ----------------------------------------------------
-        // EASING
-        // ----------------------------------------------------
-
-        const eased =
+        // Ease-out très prononcé
+        const easedProgress =
             1 -
             Math.pow(
                 1 - progress,
                 5
             );
 
+        const currentDistance =
+            totalDistance *
+            easedProgress;
 
-        const distance =
-            eased *
-            totalDistance;
+        // ------------------------------------
+        // INDEX COURANT
+        // ------------------------------------
 
-
-        const currentStep =
+        const currentIndex =
             Math.floor(
-                distance /
+                currentDistance /
                 rowHeight
             );
 
-
         const offset =
-            distance %
+            currentDistance %
             rowHeight;
 
-
-        // ----------------------------------------------------
-        // FENETRE DE 7 ELEMENTS
-        // ----------------------------------------------------
-
-        const visibleStartIndex =
-            Math.max(
-                0,
-                currentStep - 3
-            );
-
+        // ------------------------------------
+        // 7 ÉLÉMENTS VISIBLES
+        // ------------------------------------
 
         const visibleItems = [];
 
+        for (let i = -3; i <= 3; i++) {
 
-        for (
-            let i = 0;
-            i < 7;
-            i++
-        ) {
-
-            let index =
-                visibleStartIndex +
-                i;
-
+            const index =
+                currentIndex + i;
 
             if (
-                index < 0
+                index >= 0 &&
+                index < sequence.length
             ) {
-
-                index = 0;
-
+                visibleItems.push(
+                    sequence[index]
+                );
             }
-
-
-            if (
-                index >=
-                sequence.length
-            ) {
-
-                index =
-                    sequence.length - 1;
-
-            }
-
-
-            visibleItems.push(
-                sequence[index]
-            );
-
         }
 
+        // ------------------------------------
+        // DESSIN
+        // ------------------------------------
 
         drawSlotMachine(
             wheel,
-            visibleItems,
+            sequence,
             offset,
             false,
-            visibleStartIndex
+            currentIndex
         );
 
+        // ------------------------------------
+        // FIN
+        // ------------------------------------
 
-        // ----------------------------------------------------
-        // CONTINUER
-        // ----------------------------------------------------
+        if (progress >= 1) {
 
-        if (
-            progress < 1
-        ) {
-
-            wheel.animationId =
-                requestAnimationFrame(
-                    animate
-                );
-
-
-            return;
-
-        }
-
-
-        // ----------------------------------------------------
-        // POSITION FINALE
-        // ----------------------------------------------------
-
-        const finalStartIndex =
-            selectedSequenceIndex -
-            3;
-
-
-        const finalItems = [];
-
-
-        for (
-            let i = 0;
-            i < 7;
-            i++
-        ) {
-
-            finalItems.push(
-                sequence[
-                    finalStartIndex +
-                    i
-                ]
+            // Dessin final parfaitement fixe
+            drawSlotMachine(
+                wheel,
+                sequence,
+                0,
+                true,
+                selectedSequenceIndex
             );
 
-        }
+            wheel.spinning = false;
 
+            showResult(
+                type,
+                selectedItem,
+                wheelCollection === singleWheels
+            );
 
-        drawSlotMachine(
-            wheel,
-            finalItems,
-            0,
-            true,
-            finalStartIndex
-        );
-
-
-        wheel.spinning =
-            false;
-
-
-        wheel.animationId =
-            null;
-
-
-        // ----------------------------------------------------
-        // RESULTAT TEXTE
-        // ----------------------------------------------------
-
-        showResult(
-            type,
-            selectedItem,
-            wheelCollection ===
-                singleWheels
-        );
-
-
-        // ----------------------------------------------------
-        // FIN DES 3 MACHINES
-        // ----------------------------------------------------
-
-        if (
-            wheelCollection ===
-            wheels
-        ) {
-
-            const stillSpinning =
-                Object
-                    .values(
-                        wheels
-                    )
-                    .some(
-                        function(w) {
-
-                            return w.spinning;
-
-                        }
-                    );
-
+            // --------------------------------
+            // SI LES 3 ROUES PRINCIPALES
+            // SONT TERMINÉES
+            // --------------------------------
 
             if (
-                !stillSpinning
+                wheelCollection === wheels &&
+                !wheels.talisman.spinning &&
+                !wheels.arme.spinning &&
+                !wheels.objectif.spinning
             ) {
 
                 const button =
@@ -1974,536 +846,34 @@ function spinSlotMachine(
                         "spin-all"
                     );
 
-
                 if (button) {
 
-                    button.disabled =
-                        false;
-
+                    button.disabled = false;
 
                     button.textContent =
-                        translations[
-                            currentLanguage
-                        ].spinAll;
-
+                        t("spinAll");
                 }
-
             }
 
+            return;
         }
 
+        wheel.animationId =
+            requestAnimationFrame(
+                animate
+            );
     }
-
 
     wheel.animationId =
         requestAnimationFrame(
             animate
         );
-
 }
 
 
-// ============================================================
-// INITIALISATION
-// ============================================================
-
-async function initialize() {
-
-    console.log(
-        "Chargement des listes Elden Ring..."
-    );
-
-
-    const results =
-        await Promise.all([
-
-            loadItems(
-                "talismans.txt"
-            ),
-
-            loadItems(
-                "armes.txt"
-            ),
-
-            loadItems(
-                "objectifs.txt"
-            )
-
-        ]);
-
-
-    talismans =
-        results[0];
-
-
-    armes =
-        results[1];
-
-
-    objectifs =
-        results[2];
-
-
-    // --------------------------------------------------------
-    // MISE A JOUR DES MACHINES
-    // --------------------------------------------------------
-
-    wheels.talisman.items =
-        talismans;
-
-
-    wheels.arme.items =
-        armes;
-
-
-    wheels.objectif.items =
-        objectifs;
-
-
-    singleWheels.talisman.items =
-        talismans;
-
-
-    singleWheels.arme.items =
-        armes;
-
-
-    singleWheels.objectif.items =
-        objectifs;
-
-
-    // --------------------------------------------------------
-    // AFFICHAGE INITIAL ALEATOIRE
-    // --------------------------------------------------------
-
-    Object
-        .values(
-            wheels
-        )
-        .forEach(
-            function(wheel) {
-
-                const initialItems =
-                    getInitialItems(
-                        wheel.items
-                    );
-
-
-                if (
-                    !initialItems.length
-                ) {
-
-                    return;
-
-                }
-
-
-                drawSlotMachine(
-                    wheel,
-                    initialItems,
-                    0,
-                    false,
-                    wheel.items.indexOf(
-                        initialItems[0]
-                    )
-                );
-
-            }
-        );
-
-
-    Object
-        .values(
-            singleWheels
-        )
-        .forEach(
-            function(wheel) {
-
-                const initialItems =
-                    getInitialItems(
-                        wheel.items
-                    );
-
-
-                if (
-                    !initialItems.length
-                ) {
-
-                    return;
-
-                }
-
-
-                drawSlotMachine(
-                    wheel,
-                    initialItems,
-                    0,
-                    false,
-                    wheel.items.indexOf(
-                        initialItems[0]
-                    )
-                );
-
-            }
-        );
-
-
-    // --------------------------------------------------------
-    // INTERFACE
-    // --------------------------------------------------------
-
-    updateInterface();
-
-
-    updateLanguageButtons();
-
-
-    // --------------------------------------------------------
-    // LOG
-    // --------------------------------------------------------
-
-    console.log(
-        "Talismans chargés : " +
-        talismans.length
-    );
-
-
-    console.log(
-        "Armes chargées : " +
-        armes.length
-    );
-
-
-    console.log(
-        "Objectifs chargés : " +
-        objectifs.length
-    );
-
-}
-
-
-// ============================================================
-// ITEMS INITIAUX
-// ============================================================
-
-function getInitialItems(items) {
-
-    if (
-        !items ||
-        !items.length
-    ) {
-
-        return [];
-
-    }
-
-
-    const result = [];
-
-
-    const startIndex =
-        Math.floor(
-            Math.random() *
-            items.length
-        );
-
-
-    // --------------------------------------------------------
-    // IMPORTANT :
-    //
-    // La machine dessine TOUJOURS 7 éléments.
-    // --------------------------------------------------------
-
-    for (
-        let i = 0;
-        i < 7;
-        i++
-    ) {
-
-        result.push(
-            items[
-                (
-                    startIndex +
-                    i
-                ) %
-                items.length
-            ]
-        );
-
-    }
-
-
-    return result;
-
-}
-
-
-// ============================================================
-// ONGLET
-// ============================================================
-
-document
-    .querySelectorAll(
-        ".tab"
-    )
-    .forEach(
-        function(tab) {
-
-            tab.addEventListener(
-                "click",
-                function() {
-
-                    const target =
-                        tab.dataset.tab;
-
-
-                    // ------------------------------------------------
-                    // Boutons
-                    // ------------------------------------------------
-
-                    document
-                        .querySelectorAll(
-                            ".tab"
-                        )
-                        .forEach(
-                            function(button) {
-
-                                button.classList.remove(
-                                    "active"
-                                );
-
-                            }
-                        );
-
-
-                    tab.classList.add(
-                        "active"
-                    );
-
-
-                    // ------------------------------------------------
-                    // Contenus
-                    // ------------------------------------------------
-
-                    document
-                        .querySelectorAll(
-                            ".tab-content"
-                        )
-                        .forEach(
-                            function(content) {
-
-                                content.classList.remove(
-                                    "active"
-                                );
-
-                            }
-                        );
-
-
-                    const content =
-                        document.getElementById(
-                            "tab-" +
-                            target
-                        );
-
-
-                    if (content) {
-
-                        content.classList.add(
-                            "active"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-
-// ============================================================
-// BOUTON : TOURNER LES 3 MACHINES
-// ============================================================
-
-function spinAll() {
-
-    const button =
-        document.getElementById(
-            "spin-all"
-        );
-
-
-    if (!button) {
-
-        return;
-
-    }
-
-
-    // --------------------------------------------------------
-    // Empêche de relancer pendant un spin
-    // --------------------------------------------------------
-
-    if (
-        Object
-            .values(
-                wheels
-            )
-            .some(
-                function(wheel) {
-
-                    return wheel.spinning;
-
-                }
-            )
-    ) {
-
-        return;
-
-    }
-
-
-    // --------------------------------------------------------
-    // Vérification des listes
-    // --------------------------------------------------------
-
-    if (
-        !talismans.length ||
-        !armes.length ||
-        !objectifs.length
-    ) {
-
-        console.error(
-            "Une des listes est vide."
-        );
-
-
-        return;
-
-    }
-
-
-    button.disabled =
-        true;
-
-
-    button.textContent =
-        translations[
-            currentLanguage
-        ].fate;
-
-
-    // --------------------------------------------------------
-    // Lancement simultané
-    // --------------------------------------------------------
-
-    spinSlotMachine(
-        "talisman",
-        wheels
-    );
-
-
-    spinSlotMachine(
-        "arme",
-        wheels
-    );
-
-
-    spinSlotMachine(
-        "objectif",
-        wheels
-    );
-
-}
-
-
-// ============================================================
-// ROUE INDIVIDUELLE
-// ============================================================
-
-function spinSingle(type) {
-
-    const wheel =
-        singleWheels[type];
-
-
-    if (
-        !wheel ||
-        wheel.spinning
-    ) {
-
-        return;
-
-    }
-
-
-    const button =
-        document.querySelector(
-            "#tab-" +
-            type +
-            " .single-spin"
-        );
-
-
-    if (button) {
-
-        button.disabled =
-            true;
-
-
-        button.textContent =
-            translations[
-                currentLanguage
-            ].destiny;
-
-    }
-
-
-    spinSlotMachine(
-        type,
-        singleWheels
-    );
-
-
-    const check =
-        setInterval(
-            function() {
-
-                if (
-                    !wheel.spinning
-                ) {
-
-                    clearInterval(
-                        check
-                    );
-
-
-                    if (button) {
-
-                        button.disabled =
-                            false;
-
-
-                        button.textContent =
-                            translations[
-                                currentLanguage
-                            ].spin;
-
-                    }
-
-                }
-
-            },
-            50
-        );
-
-}
-
-
-// ============================================================
-// AFFICHAGE DU RESULTAT
-// ============================================================
+// ============================================
+// RÉSULTAT
+// ============================================
 
 function showResult(
     type,
@@ -2511,96 +881,655 @@ function showResult(
     single
 ) {
 
-    const id =
+    const resultId =
         single
-            ? "single-result-" +
-              type
-            : "result-" +
-              type;
-
+            ? `single-result-${type}`
+            : `result-${type}`;
 
     const result =
-        document.getElementById(
-            id
-        );
+        document.getElementById(resultId);
 
+    if (!result) return;
 
-    if (!result) {
-
-        return;
-
-    }
-
-
-    const name =
-        result.querySelector(
-            ".result-name"
-        );
-
-
-    if (!name) {
-
-        return;
-
-    }
-
-
-    name.textContent =
+    result.textContent =
         getItemName(item);
 
+    result.classList.remove("show");
 
-    result.animate(
-        [
+    // Force le navigateur à rejouer l'animation
+    void result.offsetWidth;
 
-            {
-
-                transform:
-                    "scale(0.85)",
-
-                opacity:
-                    0.3
-
-            },
-
-            {
-
-                transform:
-                    "scale(1.08)",
-
-                opacity:
-                    1
-
-            },
-
-            {
-
-                transform:
-                    "scale(1)",
-
-                opacity:
-                    1
-
-            }
-
-        ],
-
-        {
-
-            duration:
-                500,
-
-            easing:
-                "ease-out"
-
-        }
-
-    );
-
+    result.classList.add("show");
 }
 
 
-// ============================================================
+// ============================================
+// REDESSIN DE TOUTES LES ROUES
+// ============================================
+
+function redrawAllWheels() {
+
+    const collections = [
+        wheels,
+        singleWheels
+    ];
+
+    for (const collection of collections) {
+
+        for (const type in collection) {
+
+            const wheel =
+                collection[type];
+
+            if (
+                wheel &&
+                wheel.canvas &&
+                wheel.lastVisibleItems
+            ) {
+
+                drawSlotMachine(
+                    wheel,
+                    wheel.lastVisibleItems,
+                    wheel.lastOffset,
+                    false,
+                    wheel.lastStartSequenceIndex
+                );
+            }
+
+            // Mise à jour du résultat
+            if (wheel.selectedItem) {
+
+                const single =
+                    collection === singleWheels;
+
+                const resultId =
+                    single
+                        ? `single-result-${type}`
+                        : `result-${type}`;
+
+                const result =
+                    document.getElementById(
+                        resultId
+                    );
+
+                if (result) {
+
+                    result.textContent =
+                        getItemName(
+                            wheel.selectedItem
+                        );
+                }
+            }
+        }
+    }
+}
+
+
+// ============================================
+// TRADUCTION DE L'INTERFACE
+// ============================================
+
+function updateInterfaceLanguage() {
+
+    // ----------------------------------------
+    // HTML LANG
+    // ----------------------------------------
+
+    document.documentElement.lang =
+        translations[currentLanguage].htmlLang;
+
+
+    // ----------------------------------------
+    // HEADER
+    // ----------------------------------------
+
+    const h2 =
+        document.querySelector("header h2");
+
+    if (h2) {
+        h2.textContent =
+            t("challengeRandom");
+    }
+
+    const subtitle =
+        document.querySelector("header p");
+
+    if (subtitle) {
+        subtitle.textContent =
+            t("subtitle");
+    }
+
+
+    // ----------------------------------------
+    // ON RÉCUPÈRE LES ONGLETS
+    // ----------------------------------------
+
+    const tabs =
+        document.querySelectorAll(".tab");
+
+    tabs.forEach(tab => {
+
+        const tabName =
+            tab.dataset.tab;
+
+        if (tabName === "challenge") {
+            tab.textContent = t("challenge");
+        }
+
+        if (tabName === "talisman") {
+            tab.textContent = t("talisman");
+        }
+
+        if (tabName === "arme") {
+            tab.textContent = t("weapon");
+        }
+
+        if (tabName === "objectif") {
+            tab.textContent = t("objective");
+        }
+    });
+
+
+    // ----------------------------------------
+    // TITRES DES CARTES
+    // ----------------------------------------
+
+    document
+        .querySelectorAll("[data-wheel-title]")
+        .forEach(title => {
+
+            const type =
+                title.dataset.wheelTitle;
+
+            if (type === "talisman") {
+                title.textContent =
+                    t("talisman");
+            }
+
+            if (type === "arme") {
+                title.textContent =
+                    t("weapon");
+            }
+
+            if (type === "objectif") {
+                title.textContent =
+                    t("objective");
+            }
+        });
+
+
+    // ----------------------------------------
+    // FALLBACK POUR LES H3 EXISTANTS
+    // ----------------------------------------
+
+    const challengeContent =
+        document.getElementById(
+            "tab-challenge"
+        );
+
+    if (challengeContent) {
+
+        const titles =
+            challengeContent.querySelectorAll("h3");
+
+        if (titles[0]) {
+            titles[0].textContent =
+                t("talisman");
+        }
+
+        if (titles[1]) {
+            titles[1].textContent =
+                t("weapon");
+        }
+
+        if (titles[2]) {
+            titles[2].textContent =
+                t("objective");
+        }
+    }
+
+
+    // ----------------------------------------
+    // BOUTON PRINCIPAL
+    // ----------------------------------------
+
+    const spinAllButton =
+        document.getElementById("spin-all");
+
+    if (spinAllButton) {
+
+        spinAllButton.textContent =
+            spinAllButton.disabled
+                ? t("destinyAll")
+                : t("spinAll");
+    }
+
+
+    // ----------------------------------------
+    // BOUTONS INDIVIDUELS
+    // ----------------------------------------
+
+    document
+        .querySelectorAll("[data-spin]")
+        .forEach(button => {
+
+            button.textContent =
+                button.disabled
+                    ? t("destiny")
+                    : t("spin");
+        });
+
+
+    // ----------------------------------------
+    // FOOTER
+    // ----------------------------------------
+
+    const footer =
+        document.querySelector("footer");
+
+    if (footer) {
+        footer.textContent =
+            t("footer");
+    }
+
+
+    // ----------------------------------------
+    // BOUTON LANGUE
+    // ----------------------------------------
+
+    const languageButton =
+        document.getElementById(
+            "language-toggle"
+        );
+
+    if (languageButton) {
+
+        languageButton.textContent =
+            currentLanguage === "fr"
+                ? "EN"
+                : "FR";
+
+        languageButton.title =
+            currentLanguage === "fr"
+                ? "Switch to English"
+                : "Passer en français";
+    }
+}
+
+
+// ============================================
+// INITIALISATION
+// ============================================
+
+async function initialize() {
+
+    try {
+
+        const [
+            loadedTalismans,
+            loadedArmes,
+            loadedObjectifs
+        ] = await Promise.all([
+
+            loadItems("talismans.txt"),
+            loadItems("armes.txt"),
+            loadItems("objectifs.txt")
+        ]);
+
+        talismans =
+            loadedTalismans;
+
+        armes =
+            loadedArmes;
+
+        objectifs =
+            loadedObjectifs;
+
+
+        // ------------------------------------
+        // ASSIGNATION ROUES PRINCIPALES
+        // ------------------------------------
+
+        wheels.talisman.items =
+            talismans;
+
+        wheels.arme.items =
+            armes;
+
+        wheels.objectif.items =
+            objectifs;
+
+
+        // ------------------------------------
+        // ASSIGNATION ROUES INDIVIDUELLES
+        // ------------------------------------
+
+        singleWheels.talisman.items =
+            talismans;
+
+        singleWheels.arme.items =
+            armes;
+
+        singleWheels.objectif.items =
+            objectifs;
+
+
+        // ------------------------------------
+        // DESSIN INITIAL
+        // ------------------------------------
+
+        for (const type in wheels) {
+
+            const wheel =
+                wheels[type];
+
+            if (!wheel.canvas) continue;
+
+            const initialItems =
+                getInitialItems(
+                    wheel.items
+                );
+
+            wheel.lastVisibleItems =
+                initialItems;
+
+            drawSlotMachine(
+                wheel,
+                initialItems,
+                0,
+                false,
+                3
+            );
+        }
+
+
+        // ------------------------------------
+        // ROUES INDIVIDUELLES
+        // ------------------------------------
+
+        for (const type in singleWheels) {
+
+            const wheel =
+                singleWheels[type];
+
+            if (!wheel.canvas) continue;
+
+            const initialItems =
+                getInitialItems(
+                    wheel.items
+                );
+
+            wheel.lastVisibleItems =
+                initialItems;
+
+            drawSlotMachine(
+                wheel,
+                initialItems,
+                0,
+                false,
+                3
+            );
+        }
+
+
+        // ------------------------------------
+        // INTERFACE
+        // ------------------------------------
+
+        updateInterfaceLanguage();
+
+
+        // ------------------------------------
+        // LOG
+        // ------------------------------------
+
+        console.log(
+            "Elden Ring Challenge chargé !"
+        );
+
+        console.log(
+            `Talismans : ${talismans.length}`
+        );
+
+        console.log(
+            `Armes : ${armes.length}`
+        );
+
+        console.log(
+            `Objectifs : ${objectifs.length}`
+        );
+
+        console.log(
+            `Langue : ${currentLanguage}`
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erreur lors du chargement :",
+            error
+        );
+    }
+}
+
+
+// ============================================
+// ITEMS INITIAUX
+// ============================================
+
+function getInitialItems(items) {
+
+    if (!items.length) {
+        return [];
+    }
+
+    const startIndex =
+        Math.floor(
+            Math.random() * items.length
+        );
+
+    const result = [];
+
+    for (let i = -3; i <= 3; i++) {
+
+        const index =
+            (
+                startIndex + i
+            ) % items.length;
+
+        result.push(
+            items[
+                (index + items.length) %
+                items.length
+            ]
+        );
+    }
+
+    return result;
+}
+
+
+// ============================================
+// ONGLETS
+// ============================================
+
+document
+    .querySelectorAll(".tab")
+    .forEach(tab => {
+
+        tab.addEventListener(
+            "click",
+            () => {
+
+                const target =
+                    tab.dataset.tab;
+
+                // Désactivation des onglets
+                document
+                    .querySelectorAll(".tab")
+                    .forEach(t => {
+                        t.classList.remove("active");
+                    });
+
+                tab.classList.add("active");
+
+                // Désactivation des contenus
+                document
+                    .querySelectorAll(".tab-content")
+                    .forEach(content => {
+                        content.classList.remove("active");
+                    });
+
+                const targetContent =
+                    document.getElementById(
+                        `tab-${target}`
+                    );
+
+                if (targetContent) {
+                    targetContent.classList.add(
+                        "active"
+                    );
+                }
+            }
+        );
+    });
+
+
+// ============================================
+// TOURNER LES 3 ROUES
+// ============================================
+
+function spinAll() {
+
+    if (
+        wheels.talisman.spinning ||
+        wheels.arme.spinning ||
+        wheels.objectif.spinning
+    ) {
+        return;
+    }
+
+    if (
+        !talismans.length ||
+        !armes.length ||
+        !objectifs.length
+    ) {
+        console.warn(
+            "Les listes ne sont pas encore chargées."
+        );
+
+        return;
+    }
+
+    const button =
+        document.getElementById(
+            "spin-all"
+        );
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+            t("destinyAll");
+    }
+
+    spinSlotMachine(
+        "talisman",
+        wheels
+    );
+
+    spinSlotMachine(
+        "arme",
+        wheels
+    );
+
+    spinSlotMachine(
+        "objectif",
+        wheels
+    );
+}
+
+
+// ============================================
+// TOURNER UNE SEULE ROUE
+// ============================================
+
+function spinSingle(type) {
+
+    const wheel =
+        singleWheels[type];
+
+    if (!wheel || wheel.spinning) {
+        return;
+    }
+
+    const button =
+        document.querySelector(
+            `[data-spin="${type}"]`
+        );
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+            t("destiny");
+    }
+
+    spinSlotMachine(
+        type,
+        singleWheels
+    );
+
+    // ----------------------------------------
+    // ATTENTE DE FIN
+    // ----------------------------------------
+
+    const checkFinished =
+        setInterval(() => {
+
+            if (!wheel.spinning) {
+
+                clearInterval(
+                    checkFinished
+                );
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        t("spin");
+                }
+            }
+
+        }, 50);
+}
+
+
+// ============================================
+// BOUTON DE LANGUE
+// ============================================
+
+const languageButton =
+    document.getElementById(
+        "language-toggle"
+    );
+
+if (languageButton) {
+
+    languageButton.addEventListener(
+        "click",
+        toggleLanguage
+    );
+}
+
+
+// ============================================
 // LANCEMENT
-// ============================================================
+// ============================================
 
 initialize();
