@@ -1,6 +1,6 @@
-Margit et Morgot|Margit and Morgot
-Calin de Fia|Fia's hug
-Tuer les 2 Loretta|Kill the 2 Loretta
-Tuer tous les boss du mont Gelmir|Kill all bosses from Gelmir
-Tuer les 2 Astel|Kill the 2 Astel
-Restat 2 fois auprès de Rennala|2 restats from Rennala
+Tuer Margit et Morgott|Kill Margit and Morgott
+Câlin de Fia|Fia's Hug
+Tuer les 2 Loretta|Kill Both Lorettas
+Tuer tous les boss du mont Gelmir|Kill All Mt. Gelmir Bosses
+Tuer les 2 Astel|Kill Both Astels
+Restat 2 fois auprès de Rennala|Respec Twice at Rennala
