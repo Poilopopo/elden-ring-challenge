@@ -346,6 +346,12 @@ function updateInterface() {
 
     if (footer) {
 
+        const spans =
+            footer.querySelectorAll(
+                "span"
+            );
+
+
         footer.textContent = "";
 
 
@@ -361,7 +367,13 @@ function updateInterface() {
 
         const text =
             document.createTextNode(
-                " ELDEN RING CHALLENGE "
+                " ELDEN RING " +
+                (
+                    currentLanguage === "fr"
+                        ? "CHALLENGE"
+                        : "CHALLENGE"
+                ) +
+                " "
             );
 
 
@@ -435,7 +447,201 @@ function updateLanguageButtons() {
 
 
 // ============================================================
+// CACHE DES IMAGES
+// ============================================================
+//
+// Une seule image est chargée une fois,
+// puis réutilisée par les roues.
+// ============================================================
+
+const wheelImageCache = {};
+
+
+// ============================================================
+// CHARGEMENT D'UNE IMAGE DE ROUE
+// ============================================================
+
+function getWheelImage(
+    wheel,
+    item
+) {
+
+    if (
+        !wheel ||
+        !wheel.imageFolder ||
+        !item ||
+        !item.image
+    ) {
+
+        return null;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Nettoyage du nom de fichier
+    // --------------------------------------------------------
+
+    const imageName =
+        item.image
+            .trim()
+            .replace(
+                /^\/+/,
+                ""
+            );
+
+
+    if (!imageName) {
+
+        return null;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Encode chaque partie du chemin
+    //
+    // Cela permet de gérer :
+    // - espaces
+    // - accents
+    // - caractères spéciaux
+    // --------------------------------------------------------
+
+    const encodedImageName =
+        imageName
+            .split("/")
+            .map(
+                function(part) {
+
+                    return encodeURIComponent(
+                        part
+                    );
+
+                }
+            )
+            .join("/");
+
+
+    const imagePath =
+        wheel.imageFolder +
+        "/" +
+        encodedImageName;
+
+
+    // --------------------------------------------------------
+    // Déjà chargée / en cours de chargement
+    // --------------------------------------------------------
+
+    if (
+        wheelImageCache[imagePath]
+    ) {
+
+        return wheelImageCache[
+            imagePath
+        ];
+
+    }
+
+
+    // --------------------------------------------------------
+    // Création de l'image
+    // --------------------------------------------------------
+
+    const image =
+        new Image();
+
+
+    image.onload =
+        function() {
+
+            console.log(
+                "Image chargée : " +
+                imagePath
+            );
+
+
+            redrawAllWheels();
+
+        };
+
+
+    image.onerror =
+        function() {
+
+            console.error(
+                "IMAGE INTROUVABLE : " +
+                imagePath
+            );
+
+        };
+
+
+    image.src =
+        imagePath;
+
+
+    wheelImageCache[
+        imagePath
+    ] =
+        image;
+
+
+    return image;
+
+}
+
+
+// ============================================================
+// PRECHARGEMENT DES IMAGES
+// ============================================================
+
+function preloadWheelImages(
+    wheel,
+    items
+) {
+
+    if (
+        !wheel ||
+        !wheel.imageFolder ||
+        !items ||
+        !items.length
+    ) {
+
+        return;
+
+    }
+
+
+    items.forEach(
+        function(item) {
+
+            if (
+                item &&
+                item.image
+            ) {
+
+                getWheelImage(
+                    wheel,
+                    item
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
 // REDESSIN DES ROUES
+// ============================================================
+//
+// Important :
+// On ne relance PAS les roues.
+//
+// On redessine simplement les mêmes éléments
+// avec la langue sélectionnée.
 // ============================================================
 
 function redrawAllWheels() {
@@ -544,6 +750,10 @@ async function loadItems(filename) {
                 }
             )
 
+            // ------------------------------------------------
+            // Ignore les lignes vides
+            // ------------------------------------------------
+
             .filter(
                 function(line) {
 
@@ -551,6 +761,10 @@ async function loadItems(filename) {
 
                 }
             )
+
+            // ------------------------------------------------
+            // Ignore les commentaires
+            // ------------------------------------------------
 
             .filter(
                 function(line) {
@@ -567,6 +781,10 @@ async function loadItems(filename) {
                         line.split("|");
 
 
+                    // ------------------------------------------------
+                    // NOM FRANCAIS
+                    // ------------------------------------------------
+
                     const nameFR =
                         (
                             parts[0] ||
@@ -574,12 +792,20 @@ async function loadItems(filename) {
                         ).trim();
 
 
+                    // ------------------------------------------------
+                    // NOM ANGLAIS
+                    // ------------------------------------------------
+
                     const nameEN =
                         (
                             parts[1] ||
                             nameFR
                         ).trim();
 
+
+                    // ------------------------------------------------
+                    // POIDS PAR DEFAUT
+                    // ------------------------------------------------
 
                     let weight =
                         50;
@@ -610,6 +836,10 @@ async function loadItems(filename) {
 
                     }
 
+
+                    // ------------------------------------------------
+                    // IMAGE
+                    // ------------------------------------------------
 
                     let image =
                         "";
@@ -687,11 +917,15 @@ const wheels = {
                 "wheel-talisman"
             ),
 
-        imageFolder:
-            "talisman_img",
-
         items:
             talismans,
+
+        // ----------------------------------------------------
+        // DOSSIER DES IMAGES
+        // ----------------------------------------------------
+
+        imageFolder:
+            "talisman_img",
 
         spinning:
             false,
@@ -724,6 +958,13 @@ const wheels = {
         items:
             armes,
 
+        // ----------------------------------------------------
+        // DOSSIER DES IMAGES
+        // ----------------------------------------------------
+
+        imageFolder:
+            "arme_img",
+
         spinning:
             false,
 
@@ -754,6 +995,13 @@ const wheels = {
 
         items:
             objectifs,
+
+        // ----------------------------------------------------
+        // DOSSIER DES IMAGES
+        // ----------------------------------------------------
+
+        imageFolder:
+            "objectif_img",
 
         spinning:
             false,
@@ -791,11 +1039,11 @@ const singleWheels = {
                 "single-wheel-talisman"
             ),
 
-        imageFolder:
-            "talisman_img",
-
         items:
             talismans,
+
+        imageFolder:
+            "talisman_img",
 
         spinning:
             false,
@@ -828,6 +1076,9 @@ const singleWheels = {
         items:
             armes,
 
+        imageFolder:
+            "arme_img",
+
         spinning:
             false,
 
@@ -858,6 +1109,9 @@ const singleWheels = {
 
         items:
             objectifs,
+
+        imageFolder:
+            "objectif_img",
 
         spinning:
             false,
@@ -901,81 +1155,6 @@ const slotColors = [
     "#403827"
 
 ];
-
-
-// ============================================================
-// CACHE DES IMAGES
-// ============================================================
-
-const imageCache = {};
-
-
-// ============================================================
-// CHARGEMENT D'UNE IMAGE
-// ============================================================
-
-function getItemImage(item, folder) {
-
-    if (
-        !item ||
-        !item.image ||
-        !folder
-    ) {
-
-        return null;
-
-    }
-
-
-    const path =
-        folder +
-        "/" +
-        item.image;
-
-
-    if (
-        imageCache[path]
-    ) {
-
-        return imageCache[path];
-
-    }
-
-
-    const img =
-        new Image();
-
-
-    img.onload =
-        function() {
-
-            redrawAllWheels();
-
-        };
-
-
-    img.onerror =
-        function() {
-
-            console.warn(
-                "Impossible de charger l'image :",
-                path
-            );
-
-        };
-
-
-    img.src =
-        path;
-
-
-    imageCache[path] =
-        img;
-
-
-    return img;
-
-}
 
 
 // ============================================================
@@ -1135,6 +1314,10 @@ function drawSlotMachine(
 
     }
 
+
+    // --------------------------------------------------------
+    // MEMORISATION DE L'AFFICHAGE ACTUEL
+    // --------------------------------------------------------
 
     wheel.currentItems =
         visibleItems.slice();
@@ -1346,16 +1529,20 @@ function drawSlotMachine(
 
 
         // ----------------------------------------------------
-        // TEXTE + IMAGE
+        // IMAGE DE L'ITEM CENTRAL
         // ----------------------------------------------------
-
-        ctx.textAlign =
-            "center";
-
-
-        ctx.textBaseline =
-            "middle";
-
+        //
+        // IMPORTANT :
+        //
+        // L'image est uniquement affichée lorsque l'item
+        // est dans la case centrale.
+        //
+        // Le texte n'est PAS déplacé.
+        // Le texte garde exactement son comportement original.
+        //
+        // L'image est simplement placée dans la partie haute
+        // de la case centrale.
+        // ----------------------------------------------------
 
         const distanceFromCenter =
             Math.abs(
@@ -1364,55 +1551,76 @@ function drawSlotMachine(
             );
 
 
-        // ----------------------------------------------------
-        // CASE CENTRALE
-        // ----------------------------------------------------
-
         if (
             distanceFromCenter <
-            rowHeight * 0.35
+            rowHeight * 0.35 &&
+            item.image &&
+            wheel.imageFolder
         ) {
 
-            // ------------------------------------------------
-            // IMAGE DU TALISMAN
-            // ------------------------------------------------
-
-            const img =
-                getItemImage(
-                    item,
-                    wheel.imageFolder
+            const image =
+                getWheelImage(
+                    wheel,
+                    item
                 );
 
 
             if (
-                img &&
-                img.complete &&
-                img.naturalWidth > 0
+                image &&
+                image.complete &&
+                image.naturalWidth > 0
             ) {
 
-                const maxImageSize =
+                // ------------------------------------------------
+                // Taille maximale de l'image
+                // ------------------------------------------------
+
+                const maxImageHeight =
+                    rowHeight * 0.40;
+
+
+                const maxImageWidth =
                     Math.min(
-                        rowHeight * 0.55,
-                        width * 0.22
+                        width * 0.22,
+                        rowHeight * 0.40
                     );
 
 
-                const ratio =
-                    Math.min(
-                        maxImageSize / img.naturalWidth,
-                        maxImageSize / img.naturalHeight
-                    );
+                const imageRatio =
+                    image.naturalWidth /
+                    image.naturalHeight;
 
 
-                const imageWidth =
-                    img.naturalWidth *
-                    ratio;
+                let imageWidth =
+                    maxImageWidth;
 
 
-                const imageHeight =
-                    img.naturalHeight *
-                    ratio;
+                let imageHeight =
+                    imageWidth /
+                    imageRatio;
 
+
+                if (
+                    imageHeight >
+                    maxImageHeight
+                ) {
+
+                    imageHeight =
+                        maxImageHeight;
+
+
+                    imageWidth =
+                        imageHeight *
+                        imageRatio;
+
+                }
+
+
+                // ------------------------------------------------
+                // Position :
+                // centrée horizontalement,
+                // dans la partie haute de la case centrale
+                // ------------------------------------------------
 
                 const imageX =
                     (
@@ -1422,12 +1630,13 @@ function drawSlotMachine(
 
 
                 const imageY =
-                    y -
-                    rowHeight * 0.34;
+                    centerY -
+                    rowHeight / 2 +
+                    4;
 
 
                 ctx.drawImage(
-                    img,
+                    image,
                     imageX,
                     imageY,
                     imageWidth,
@@ -1436,73 +1645,58 @@ function drawSlotMachine(
 
             }
 
+        }
 
-            // ------------------------------------------------
-            // NOM DU TALISMAN
-            // ------------------------------------------------
 
-            ctx.font =
-                "600 " +
-                Math.max(
-                    16,
-                    fontSize * 0.72
-                ) +
-                "px Cinzel, Georgia, serif";
+        // ----------------------------------------------------
+        // TEXTE
+        // ----------------------------------------------------
 
+        ctx.font =
+            "600 " +
+            fontSize +
+            "px Cinzel, Georgia, serif";
+
+
+        ctx.textAlign =
+            "center";
+
+
+        ctx.textBaseline =
+            "middle";
+
+
+        const text =
+            truncateText(
+                ctx,
+                getItemName(item),
+                width - 90
+            );
+
+
+        if (
+            distanceFromCenter <
+            rowHeight * 0.35
+        ) {
 
             ctx.fillStyle =
                 "#f0d98f";
 
-
-            const text =
-                truncateText(
-                    ctx,
-                    getItemName(item),
-                    width - 90
-                );
-
-
-            ctx.fillText(
-                text,
-                width / 2,
-                y +
-                rowHeight * 0.28
-            );
-
         }
 
-
-        // ----------------------------------------------------
-        // AUTRES CASES
-        // ----------------------------------------------------
-
         else {
-
-            ctx.font =
-                "600 " +
-                fontSize +
-                "px Cinzel, Georgia, serif";
-
 
             ctx.fillStyle =
                 "#9b895c";
 
-
-            const text =
-                truncateText(
-                    ctx,
-                    getItemName(item),
-                    width - 90
-                );
-
-
-            ctx.fillText(
-                text,
-                width / 2,
-                y
-            );
-
         }
+
+
+        ctx.fillText(
+            text,
+            width / 2,
+            y
+        );
 
 
         // ----------------------------------------------------
@@ -2206,6 +2400,50 @@ async function initialize() {
 
     singleWheels.objectif.items =
         objectifs;
+
+
+    // --------------------------------------------------------
+    // PRECHARGEMENT DES IMAGES
+    // --------------------------------------------------------
+    //
+    // Cela permet aux images de commencer à charger dès
+    // le lancement du site.
+    // --------------------------------------------------------
+
+    preloadWheelImages(
+        wheels.talisman,
+        talismans
+    );
+
+
+    preloadWheelImages(
+        wheels.arme,
+        armes
+    );
+
+
+    preloadWheelImages(
+        wheels.objectif,
+        objectifs
+    );
+
+
+    preloadWheelImages(
+        singleWheels.talisman,
+        talismans
+    );
+
+
+    preloadWheelImages(
+        singleWheels.arme,
+        armes
+    );
+
+
+    preloadWheelImages(
+        singleWheels.objectif,
+        objectifs
+    );
 
 
     // --------------------------------------------------------
