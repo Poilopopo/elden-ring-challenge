@@ -346,12 +346,6 @@ function updateInterface() {
 
     if (footer) {
 
-        const spans =
-            footer.querySelectorAll(
-                "span"
-            );
-
-
         footer.textContent = "";
 
 
@@ -367,13 +361,7 @@ function updateInterface() {
 
         const text =
             document.createTextNode(
-                " ELDEN RING " +
-                (
-                    currentLanguage === "fr"
-                        ? "CHALLENGE"
-                        : "CHALLENGE"
-                ) +
-                " "
+                " ELDEN RING CHALLENGE "
             );
 
 
@@ -448,13 +436,6 @@ function updateLanguageButtons() {
 
 // ============================================================
 // REDESSIN DES ROUES
-// ============================================================
-//
-// Important :
-// On ne relance PAS les roues.
-//
-// On redessine simplement les mêmes éléments
-// avec la langue sélectionnée.
 // ============================================================
 
 function redrawAllWheels() {
@@ -563,10 +544,6 @@ async function loadItems(filename) {
                 }
             )
 
-            // ------------------------------------------------
-            // Ignore les lignes vides
-            // ------------------------------------------------
-
             .filter(
                 function(line) {
 
@@ -574,10 +551,6 @@ async function loadItems(filename) {
 
                 }
             )
-
-            // ------------------------------------------------
-            // Ignore les commentaires
-            // ------------------------------------------------
 
             .filter(
                 function(line) {
@@ -594,10 +567,6 @@ async function loadItems(filename) {
                         line.split("|");
 
 
-                    // ------------------------------------------------
-                    // NOM FRANCAIS
-                    // ------------------------------------------------
-
                     const nameFR =
                         (
                             parts[0] ||
@@ -605,20 +574,12 @@ async function loadItems(filename) {
                         ).trim();
 
 
-                    // ------------------------------------------------
-                    // NOM ANGLAIS
-                    // ------------------------------------------------
-
                     const nameEN =
                         (
                             parts[1] ||
                             nameFR
                         ).trim();
 
-
-                    // ------------------------------------------------
-                    // POIDS PAR DEFAUT
-                    // ------------------------------------------------
 
                     let weight =
                         50;
@@ -649,10 +610,6 @@ async function loadItems(filename) {
 
                     }
 
-
-                    // ------------------------------------------------
-                    // IMAGE
-                    // ------------------------------------------------
 
                     let image =
                         "";
@@ -729,6 +686,9 @@ const wheels = {
             document.getElementById(
                 "wheel-talisman"
             ),
+
+        imageFolder:
+            "talisman_img",
 
         items:
             talismans,
@@ -830,6 +790,9 @@ const singleWheels = {
             document.getElementById(
                 "single-wheel-talisman"
             ),
+
+        imageFolder:
+            "talisman_img",
 
         items:
             talismans,
@@ -938,6 +901,81 @@ const slotColors = [
     "#403827"
 
 ];
+
+
+// ============================================================
+// CACHE DES IMAGES
+// ============================================================
+
+const imageCache = {};
+
+
+// ============================================================
+// CHARGEMENT D'UNE IMAGE
+// ============================================================
+
+function getItemImage(item, folder) {
+
+    if (
+        !item ||
+        !item.image ||
+        !folder
+    ) {
+
+        return null;
+
+    }
+
+
+    const path =
+        folder +
+        "/" +
+        item.image;
+
+
+    if (
+        imageCache[path]
+    ) {
+
+        return imageCache[path];
+
+    }
+
+
+    const img =
+        new Image();
+
+
+    img.onload =
+        function() {
+
+            redrawAllWheels();
+
+        };
+
+
+    img.onerror =
+        function() {
+
+            console.warn(
+                "Impossible de charger l'image :",
+                path
+            );
+
+        };
+
+
+    img.src =
+        path;
+
+
+    imageCache[path] =
+        img;
+
+
+    return img;
+
+}
 
 
 // ============================================================
@@ -1097,10 +1135,6 @@ function drawSlotMachine(
 
     }
 
-
-    // --------------------------------------------------------
-    // MEMORISATION DE L'AFFICHAGE ACTUEL
-    // --------------------------------------------------------
 
     wheel.currentItems =
         visibleItems.slice();
@@ -1312,14 +1346,8 @@ function drawSlotMachine(
 
 
         // ----------------------------------------------------
-        // TEXTE
+        // TEXTE + IMAGE
         // ----------------------------------------------------
-
-        ctx.font =
-            "600 " +
-            fontSize +
-            "px Cinzel, Georgia, serif";
-
 
         ctx.textAlign =
             "center";
@@ -1329,14 +1357,6 @@ function drawSlotMachine(
             "middle";
 
 
-        const text =
-            truncateText(
-                ctx,
-                getItemName(item),
-                width - 90
-            );
-
-
         const distanceFromCenter =
             Math.abs(
                 y -
@@ -1344,29 +1364,145 @@ function drawSlotMachine(
             );
 
 
+        // ----------------------------------------------------
+        // CASE CENTRALE
+        // ----------------------------------------------------
+
         if (
             distanceFromCenter <
             rowHeight * 0.35
         ) {
 
+            // ------------------------------------------------
+            // IMAGE DU TALISMAN
+            // ------------------------------------------------
+
+            const img =
+                getItemImage(
+                    item,
+                    wheel.imageFolder
+                );
+
+
+            if (
+                img &&
+                img.complete &&
+                img.naturalWidth > 0
+            ) {
+
+                const maxImageSize =
+                    Math.min(
+                        rowHeight * 0.55,
+                        width * 0.22
+                    );
+
+
+                const ratio =
+                    Math.min(
+                        maxImageSize / img.naturalWidth,
+                        maxImageSize / img.naturalHeight
+                    );
+
+
+                const imageWidth =
+                    img.naturalWidth *
+                    ratio;
+
+
+                const imageHeight =
+                    img.naturalHeight *
+                    ratio;
+
+
+                const imageX =
+                    (
+                        width -
+                        imageWidth
+                    ) / 2;
+
+
+                const imageY =
+                    y -
+                    rowHeight * 0.34;
+
+
+                ctx.drawImage(
+                    img,
+                    imageX,
+                    imageY,
+                    imageWidth,
+                    imageHeight
+                );
+
+            }
+
+
+            // ------------------------------------------------
+            // NOM DU TALISMAN
+            // ------------------------------------------------
+
+            ctx.font =
+                "600 " +
+                Math.max(
+                    16,
+                    fontSize * 0.72
+                ) +
+                "px Cinzel, Georgia, serif";
+
+
             ctx.fillStyle =
                 "#f0d98f";
 
+
+            const text =
+                truncateText(
+                    ctx,
+                    getItemName(item),
+                    width - 90
+                );
+
+
+            ctx.fillText(
+                text,
+                width / 2,
+                y +
+                rowHeight * 0.28
+            );
+
         }
 
+
+        // ----------------------------------------------------
+        // AUTRES CASES
+        // ----------------------------------------------------
+
         else {
+
+            ctx.font =
+                "600 " +
+                fontSize +
+                "px Cinzel, Georgia, serif";
+
 
             ctx.fillStyle =
                 "#9b895c";
 
+
+            const text =
+                truncateText(
+                    ctx,
+                    getItemName(item),
+                    width - 90
+                );
+
+
+            ctx.fillText(
+                text,
+                width / 2,
+                y
+            );
+
         }
-
-
-        ctx.fillText(
-            text,
-            width / 2,
-            y
-        );
 
 
         // ----------------------------------------------------
