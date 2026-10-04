@@ -32,13 +32,13 @@ const translations = {
             "⚔ CHALLENGE ⚔",
 
         talisman:
-            "✦ TALISMAN ✦",
+            "◆ TALISMAN ◆",
 
         arme:
-            "✦ ARME ✦",
+            "◆ ARME ◆",
 
         objectif:
-            "✦ OBJECTIF ✦",
+            "◆ OBJECTIF ◆",
 
         spinAll:
             "⚔ TOURNER LES ROUES ⚔",
@@ -47,7 +47,7 @@ const translations = {
             "⚔ DESTIN EN COURS... ⚔",
 
         spin:
-            "✦ TOURNER ✦",
+            "◆ TOURNER ◆",
 
         destiny:
             "DESTIN..."
@@ -67,13 +67,13 @@ const translations = {
             "⚔ CHALLENGE ⚔",
 
         talisman:
-            "✦ TALISMAN ✦",
+            "◆ TALISMAN ◆",
 
         arme:
-            "✦ WEAPON ✦",
+            "◆ WEAPON ◆",
 
         objectif:
-            "✦ OBJECTIVE ✦",
+            "◆ OBJECTIVE ◆",
 
         spinAll:
             "⚔ SPIN THE WHEELS ⚔",
@@ -82,7 +82,7 @@ const translations = {
             "⚔ FATE IN PROGRESS... ⚔",
 
         spin:
-            "✦ SPIN ✦",
+            "◆ SPIN ◆",
 
         destiny:
             "FATE..."
@@ -152,6 +152,133 @@ function setLanguage(language) {
 
 
     redrawAllWheels();
+
+}
+
+
+// ============================================================
+// MISE A JOUR DES RESULTATS
+// ============================================================
+//
+// Retraduit les résultats déjà affichés lorsqu'on change
+// de langue.
+// ============================================================
+
+function updateDisplayedResults() {
+
+    const resultTypes = [
+
+        "talisman",
+
+        "arme",
+
+        "objectif"
+
+    ];
+
+
+    resultTypes.forEach(
+        function(type) {
+
+            // ------------------------------------------------
+            // RESULTAT ROUE PRINCIPALE
+            // ------------------------------------------------
+
+            const result =
+                document.getElementById(
+                    "result-" + type
+                );
+
+
+            if (
+                result &&
+                result._selectedItem
+            ) {
+
+                const name =
+                    result.querySelector(
+                        ".result-name"
+                    );
+
+
+                if (name) {
+
+                    name.textContent =
+                        getItemName(
+                            result._selectedItem
+                        );
+
+                }
+
+
+                const image =
+                    result.querySelector(
+                        ".winner-image"
+                    );
+
+
+                if (image) {
+
+                    image.alt =
+                        getItemName(
+                            result._selectedItem
+                        );
+
+                }
+
+            }
+
+
+            // ------------------------------------------------
+            // RESULTAT ROUE INDIVIDUELLE
+            // ------------------------------------------------
+
+            const singleResult =
+                document.getElementById(
+                    "single-result-" + type
+                );
+
+
+            if (
+                singleResult &&
+                singleResult._selectedItem
+            ) {
+
+                const name =
+                    singleResult.querySelector(
+                        ".result-name"
+                    );
+
+
+                if (name) {
+
+                    name.textContent =
+                        getItemName(
+                            singleResult._selectedItem
+                        );
+
+                }
+
+
+                const image =
+                    singleResult.querySelector(
+                        ".winner-image"
+                    );
+
+
+                if (image) {
+
+                    image.alt =
+                        getItemName(
+                            singleResult._selectedItem
+                        );
+
+                }
+
+            }
+
+        }
+    );
 
 }
 
@@ -248,6 +375,10 @@ function updateInterface() {
                 const text =
                     title.textContent
                         .replace(
+                            /◆/g,
+                            ""
+                        )
+                        .replace(
                             /✦/g,
                             ""
                         )
@@ -256,7 +387,6 @@ function updateInterface() {
 
 
                 if (
-                    text.includes("talisman") ||
                     text.includes("talisman")
                 ) {
 
@@ -402,6 +532,13 @@ function updateInterface() {
         );
 
     }
+
+
+    // --------------------------------------------------------
+    // RESULTATS DEJA AFFICHES
+    // --------------------------------------------------------
+
+    updateDisplayedResults();
 
 }
 
@@ -1827,30 +1964,55 @@ function spinSlotMachine(
     wheelCollection
 ) {
 
-    // Efface le résultat précédent avant de relancer la roue
+    // --------------------------------------------------------
+    // EFFACE LE RESULTAT PRECEDENT
+    // --------------------------------------------------------
+
     const resultId =
         wheelCollection === singleWheels
             ? "single-result-" + type
             : "result-" + type;
 
+
     const result =
-        document.getElementById(resultId);
+        document.getElementById(
+            resultId
+        );
+
 
     if (result) {
 
         const name =
-            result.querySelector(".result-name");
+            result.querySelector(
+                ".result-name"
+            );
+
 
         if (name) {
-            name.textContent = "";
+
+            name.textContent =
+                "";
+
         }
+
 
         const image =
-            result.querySelector(".winner-image");
+            result.querySelector(
+                ".winner-image"
+            );
+
 
         if (image) {
+
             image.remove();
+
         }
+
+
+        // Oublie également l'ancien résultat
+        result._selectedItem =
+            null;
+
     }
 
 
@@ -2718,6 +2880,9 @@ function spinSingle(type) {
 // Elle n'est PAS dessinée dans le canvas.
 // Elle apparaît dans l'encadré du winner,
 // à droite du nom.
+//
+// Le résultat est mémorisé dans _selectedItem afin
+// de pouvoir être retraduit lors d'un changement de langue.
 // ============================================================
 
 function showResult(
@@ -2758,6 +2923,17 @@ function showResult(
         return;
 
     }
+
+
+    // --------------------------------------------------------
+    // MEMORISE LE WINNER
+    // --------------------------------------------------------
+    //
+    // Très important pour pouvoir le retraduire plus tard.
+    // --------------------------------------------------------
+
+    result._selectedItem =
+        item;
 
 
     // --------------------------------------------------------
@@ -2862,29 +3038,11 @@ function showResult(
 
 
         // ----------------------------------------------------
-        // Si l'image est déjà chargée
+        // Image
         // ----------------------------------------------------
 
-        if (
-            image.complete &&
-            image.naturalWidth > 0
-        ) {
-
-            winnerImage.src =
-                image.src;
-
-        }
-
-        else {
-
-            // ------------------------------------------------
-            // Sinon on attend son chargement
-            // ------------------------------------------------
-
-            winnerImage.src =
-                image.src;
-
-        }
+        winnerImage.src =
+            image.src;
 
 
         // ----------------------------------------------------
