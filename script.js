@@ -1827,6 +1827,33 @@ function spinSlotMachine(
     wheelCollection
 ) {
 
+    // Efface le résultat précédent avant de relancer la roue
+    const resultId =
+        wheelCollection === singleWheels
+            ? "single-result-" + type
+            : "result-" + type;
+
+    const result =
+        document.getElementById(resultId);
+
+    if (result) {
+
+        const name =
+            result.querySelector(".result-name");
+
+        if (name) {
+            name.textContent = "";
+        }
+
+        const image =
+            result.querySelector(".winner-image");
+
+        if (image) {
+            image.remove();
+        }
+    }
+
+
     const wheel =
         wheelCollection[type];
 
