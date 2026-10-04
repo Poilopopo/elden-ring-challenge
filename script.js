@@ -2874,10 +2874,8 @@ function spinSingle(type) {
 // AFFICHAGE DU RESULTAT
 // ============================================================
 //
-// L'IMAGE EST AFFICHÉE UNIQUEMENT ICI.
-//
-// Le nom du résultat est affiché en haut,
-// puis l'image est centrée en dessous.
+// Le nom du résultat est centré en haut,
+// puis l'image est centrée juste en dessous.
 // ============================================================
 
 function showResult(
@@ -2921,6 +2919,26 @@ function showResult(
 
 
     // --------------------------------------------------------
+    // FORCE LE CADRE A ETRE VERTICAL
+    // --------------------------------------------------------
+
+    result.style.display =
+        "flex";
+
+    result.style.flexDirection =
+        "column";
+
+    result.style.alignItems =
+        "center";
+
+    result.style.justifyContent =
+        "center";
+
+    result.style.textAlign =
+        "center";
+
+
+    // --------------------------------------------------------
     // NOM DU WINNER
     // --------------------------------------------------------
 
@@ -2929,12 +2947,32 @@ function showResult(
 
 
     // --------------------------------------------------------
+    // FORCE LE NOM A PRENDRE TOUTE LA LARGEUR
+    // --------------------------------------------------------
+
+    name.style.display =
+        "block";
+
+    name.style.width =
+        "100%";
+
+    name.style.textAlign =
+        "center";
+
+    name.style.marginLeft =
+        "0";
+
+    name.style.marginRight =
+        "0";
+
+
+    // --------------------------------------------------------
     // SUPPRIME UNE EVENTUELLE ANCIENNE IMAGE
     // --------------------------------------------------------
 
     const oldImage =
         result.querySelector(
-            ".winner-image"
+            ".winner-image-container"
         );
 
 
@@ -2978,6 +3016,10 @@ function showResult(
             "flex";
 
 
+        imageContainer.style.flexDirection =
+            "row";
+
+
         imageContainer.style.justifyContent =
             "center";
 
@@ -2990,8 +3032,16 @@ function showResult(
             "100%";
 
 
-        imageContainer.style.marginTop =
-            "8px";
+        imageContainer.style.boxSizing =
+            "border-box";
+
+
+        imageContainer.style.margin =
+            "8px 0 0 0";
+
+
+        imageContainer.style.padding =
+            "0";
 
 
         // ----------------------------------------------------
@@ -3033,39 +3083,33 @@ function showResult(
 
 
         winnerImage.style.margin =
-            "0 auto";
+            "0";
+
+
+        winnerImage.style.padding =
+            "0";
 
 
         // ----------------------------------------------------
-        // IMAGE DEJA CHARGEE
+        // SOURCE DE L'IMAGE
         // ----------------------------------------------------
 
-        if (
-            image.complete &&
-            image.naturalWidth > 0
-        ) {
-
-            winnerImage.src =
-                image.src;
-
-        }
-
-        else {
-
-            winnerImage.src =
-                image.src;
-
-        }
+        winnerImage.src =
+            image.src;
 
 
         // ----------------------------------------------------
-        // IMAGE SOUS LE TEXTE
+        // AJOUT IMAGE DANS SON CONTENEUR
         // ----------------------------------------------------
 
         imageContainer.appendChild(
             winnerImage
         );
 
+
+        // ----------------------------------------------------
+        // AJOUT DU CONTENEUR SOUS LE TEXTE
+        // ----------------------------------------------------
 
         result.appendChild(
             imageContainer
@@ -3075,7 +3119,7 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // ANIMATION EXISTANTE DU RESULTAT
+    // ANIMATION DU RESULTAT
     // --------------------------------------------------------
 
     result.animate(
