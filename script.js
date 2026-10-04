@@ -1,6 +1,5 @@
 // ============================================================
 // ELDEN RING CHALLENGE
-// MACHINE A SOUS
 // ============================================================
 
 
@@ -12,7 +11,8 @@ async function loadItems(filename) {
 
     try {
 
-        const response = await fetch(filename);
+        const response =
+            await fetch(filename);
 
         if (!response.ok) {
 
@@ -25,40 +25,26 @@ async function loadItems(filename) {
         const text =
             await response.text();
 
-
         return text
             .split(/\r?\n/)
-
             .map(function(line) {
                 return line.trim();
             })
-
-            // Ignore les lignes vides
             .filter(function(line) {
                 return line.length > 0;
             })
-
-            // Ignore les commentaires
             .filter(function(line) {
                 return !line.startsWith("#");
             })
-
             .map(function(line) {
 
                 const parts =
                     line.split("|");
 
-
                 const name =
                     parts[0].trim();
 
-
-                // ------------------------------------------------
-                // POIDS PAR DEFAUT
-                // ------------------------------------------------
-
-                let weight = 50;
-
+                let weight = 100;
 
                 if (
                     parts.length > 1 &&
@@ -69,7 +55,6 @@ async function loadItems(filename) {
                         Number(
                             parts[1].trim()
                         );
-
 
                     if (
                         Number.isFinite(parsedWeight) &&
@@ -83,13 +68,9 @@ async function loadItems(filename) {
 
                 }
 
-
                 return {
-
                     name: name,
-
                     weight: weight
-
                 };
 
             });
@@ -103,7 +84,6 @@ async function loadItems(filename) {
             error
         );
 
-
         return [];
 
     }
@@ -112,142 +92,16 @@ async function loadItems(filename) {
 
 
 // ============================================================
-// DONNEES
+// DONNÉES
 // ============================================================
 
 let talismans = [];
-
 let armes = [];
-
 let objectifs = [];
 
 
 // ============================================================
-// MACHINES PRINCIPALES
-// ============================================================
-
-const wheels = {
-
-    talisman: {
-
-        canvas:
-            document.getElementById(
-                "wheel-talisman"
-            ),
-
-        items: talismans,
-
-        spinning: false,
-
-        selectedItem: null,
-
-        animationId: null
-
-    },
-
-
-    arme: {
-
-        canvas:
-            document.getElementById(
-                "wheel-arme"
-            ),
-
-        items: armes,
-
-        spinning: false,
-
-        selectedItem: null,
-
-        animationId: null
-
-    },
-
-
-    objectif: {
-
-        canvas:
-            document.getElementById(
-                "wheel-objectif"
-            ),
-
-        items: objectifs,
-
-        spinning: false,
-
-        selectedItem: null,
-
-        animationId: null
-
-    }
-
-};
-
-
-// ============================================================
-// MACHINES INDIVIDUELLES
-// ============================================================
-
-const singleWheels = {
-
-    talisman: {
-
-        canvas:
-            document.getElementById(
-                "single-wheel-talisman"
-            ),
-
-        items: talismans,
-
-        spinning: false,
-
-        selectedItem: null,
-
-        animationId: null
-
-    },
-
-
-    arme: {
-
-        canvas:
-            document.getElementById(
-                "single-wheel-arme"
-            ),
-
-        items: armes,
-
-        spinning: false,
-
-        selectedItem: null,
-
-        animationId: null
-
-    },
-
-
-    objectif: {
-
-        canvas:
-            document.getElementById(
-                "single-wheel-objectif"
-            ),
-
-        items: objectifs,
-
-        spinning: false,
-
-        selectedItem: null,
-
-        animationId: null
-
-    }
-
-};
-
-
-// ============================================================
-// COULEURS
+// COULEURS DES BANDITS
 // ============================================================
 
 const slotColors = [
@@ -263,7 +117,119 @@ const slotColors = [
 
 
 // ============================================================
-// TIRAGE PONDERE
+// ROUES PRINCIPALES
+// ============================================================
+
+const wheels = {
+
+    talisman: {
+
+        canvas:
+            document.getElementById(
+                "wheel-talisman"
+            ),
+
+        items: talismans,
+
+        rotation: 0,
+
+        spinning: false
+
+    },
+
+
+    arme: {
+
+        canvas:
+            document.getElementById(
+                "wheel-arme"
+            ),
+
+        items: armes,
+
+        rotation: 0,
+
+        spinning: false
+
+    },
+
+
+    objectif: {
+
+        canvas:
+            document.getElementById(
+                "wheel-objectif"
+            ),
+
+        items: objectifs,
+
+        rotation: 0,
+
+        spinning: false
+
+    }
+
+};
+
+
+// ============================================================
+// ROUES INDIVIDUELLES
+// ============================================================
+
+const singleWheels = {
+
+    talisman: {
+
+        canvas:
+            document.getElementById(
+                "single-wheel-talisman"
+            ),
+
+        items: talismans,
+
+        rotation: 0,
+
+        spinning: false
+
+    },
+
+
+    arme: {
+
+        canvas:
+            document.getElementById(
+                "single-wheel-arme"
+            ),
+
+        items: armes,
+
+        rotation: 0,
+
+        spinning: false
+
+    },
+
+
+    objectif: {
+
+        canvas:
+            document.getElementById(
+                "single-wheel-objectif"
+            ),
+
+        items: objectifs,
+
+        rotation: 0,
+
+        spinning: false
+
+    }
+
+};
+
+
+// ============================================================
+// TIRAGE PONDÉRÉ
 // ============================================================
 
 function chooseWeightedItem(items) {
@@ -311,37 +277,46 @@ function chooseWeightedItem(items) {
 
 
 // ============================================================
-// OUTILS
+// HAUTEUR D'UNE CASE
+// ============================================================
+
+function getRowHeight(canvas) {
+
+    if (
+        canvas.width <= 450
+    ) {
+
+        return 72;
+
+    }
+
+    return 82;
+
+}
+
+
+// ============================================================
+// TAILLE DU TEXTE
 // ============================================================
 
 function getFontSize(canvas) {
 
-    if (canvas.width >= 600) {
-        return 25;
+    if (
+        canvas.width <= 450
+    ) {
+
+        return 18;
+
     }
 
-    return 21;
+    return 22;
 
 }
 
 
-function getVisibleRows(canvas) {
-
-    if (canvas.width >= 600) {
-        return 5;
-    }
-
-    return 5;
-
-}
-
-
-function getRowHeight(canvas) {
-
-    return canvas.height / 5;
-
-}
-
+// ============================================================
+// TEXTE TROP LONG
+// ============================================================
 
 function truncateText(
     ctx,
@@ -385,7 +360,235 @@ function truncateText(
 
 
 // ============================================================
-// DESSIN DE LA MACHINE A SOUS
+// CRÉATION DU PREMIER AFFICHAGE
+// ============================================================
+
+function getInitialItems(items) {
+
+    if (
+        !items ||
+        !items.length
+    ) {
+
+        return [];
+
+    }
+
+
+    const result = [];
+
+
+    // Départ aléatoire dans le fichier
+    const startIndex =
+        Math.floor(
+            Math.random() *
+            items.length
+        );
+
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        const index =
+            (
+                startIndex +
+                i
+            ) %
+            items.length;
+
+
+        result.push(
+            items[index]
+        );
+
+    }
+
+
+    return result;
+
+}
+
+
+// ============================================================
+// CRÉATION DE LA SÉQUENCE DE SPIN
+// ============================================================
+
+function createSpinSequence(
+    items,
+    selectedItem
+) {
+
+    const sequence = [];
+
+
+    if (
+        !items ||
+        !items.length
+    ) {
+
+        return sequence;
+
+    }
+
+
+    // --------------------------------------------------------
+    // PHASE DE DÉFILEMENT
+    // --------------------------------------------------------
+
+    const spinCount =
+        Math.max(
+            35,
+            Math.min(
+                70,
+                Math.floor(
+                    items.length * 0.4
+                )
+            )
+        );
+
+
+    for (
+        let i = 0;
+        i < spinCount;
+        i++
+    ) {
+
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                items.length
+            );
+
+
+        sequence.push(
+            items[randomIndex]
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // FIN DU SPIN
+    //
+    // On respecte l'ordre du fichier TXT.
+    //
+    // -3
+    // -2
+    // -1
+    // RESULTAT
+    // +1
+    // +2
+    // +3
+    // --------------------------------------------------------
+
+    const selectedIndex =
+        items.indexOf(
+            selectedItem
+        );
+
+
+    const before3 =
+        items[
+            (
+                selectedIndex -
+                3 +
+                items.length
+            ) %
+            items.length
+        ];
+
+
+    const before2 =
+        items[
+            (
+                selectedIndex -
+                2 +
+                items.length
+            ) %
+            items.length
+        ];
+
+
+    const before1 =
+        items[
+            (
+                selectedIndex -
+                1 +
+                items.length
+            ) %
+            items.length
+        ];
+
+
+    const after1 =
+        items[
+            (
+                selectedIndex +
+                1
+            ) %
+            items.length
+        ];
+
+
+    const after2 =
+        items[
+            (
+                selectedIndex +
+                2
+            ) %
+            items.length
+        ];
+
+
+    const after3 =
+        items[
+            (
+                selectedIndex +
+                3
+            ) %
+            items.length
+        ];
+
+
+    sequence.push(
+        before3
+    );
+
+    sequence.push(
+        before2
+    );
+
+    sequence.push(
+        before1
+    );
+
+    sequence.push(
+        selectedItem
+    );
+
+    sequence.push(
+        after1
+    );
+
+    sequence.push(
+        after2
+    );
+
+    sequence.push(
+        after3
+    );
+
+
+    return sequence;
+
+}
+
+
+// ============================================================
+// DESSIN DU BANDIT MANCHOT
 // ============================================================
 
 function drawSlotMachine(
@@ -399,18 +602,23 @@ function drawSlotMachine(
     const canvas =
         wheel.canvas;
 
+
     if (!canvas) {
         return;
     }
 
+
     const ctx =
         canvas.getContext("2d");
+
 
     const width =
         canvas.width;
 
+
     const height =
         canvas.height;
+
 
     ctx.clearRect(
         0,
@@ -436,7 +644,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // CADRE
+    // CADRE EXTÉRIEUR
     // --------------------------------------------------------
 
     ctx.strokeStyle =
@@ -468,18 +676,21 @@ function drawSlotMachine(
     const rowHeight =
         getRowHeight(canvas);
 
+
     const centerY =
         height / 2;
+
 
     const fontSize =
         getFontSize(canvas);
 
 
     // --------------------------------------------------------
-    // ZONE DE DEFILEMENT
+    // ZONE DE DÉFILEMENT
     // --------------------------------------------------------
 
     ctx.save();
+
 
     ctx.fillStyle =
         "#1a1710";
@@ -505,7 +716,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // ITEMS
+    // AFFICHAGE DES ITEMS
     // --------------------------------------------------------
 
     for (
@@ -517,8 +728,10 @@ function drawSlotMachine(
         const item =
             visibleItems[i];
 
+
         const sequenceIndex =
-            startSequenceIndex + i;
+            startSequenceIndex +
+            i;
 
 
         const y =
@@ -531,23 +744,33 @@ function drawSlotMachine(
 
 
         // ----------------------------------------------------
-        // COULEUR BASEE SUR LA POSITION REELLE
+        // COULEUR
+        //
+        // La couleur dépend de la position réelle dans la
+        // séquence, et ne change donc pas artificiellement
+        // lors du résultat final.
         // ----------------------------------------------------
+
+        const colorIndex =
+            (
+                sequenceIndex %
+                slotColors.length +
+                slotColors.length
+            ) %
+            slotColors.length;
+
 
         ctx.fillStyle =
             slotColors[
-                (
-                    sequenceIndex %
-                    slotColors.length +
-                    slotColors.length
-                ) %
-                slotColors.length
+                colorIndex
             ];
 
 
         ctx.fillRect(
             28,
-            y - rowHeight / 2 + 2,
+            y -
+                rowHeight / 2 +
+                2,
             width - 56,
             rowHeight - 4
         );
@@ -562,8 +785,10 @@ function drawSlotMachine(
             fontSize +
             "px Cinzel, Georgia, serif";
 
+
         ctx.textAlign =
             "center";
+
 
         ctx.textBaseline =
             "middle";
@@ -579,7 +804,8 @@ function drawSlotMachine(
 
         const distanceFromCenter =
             Math.abs(
-                y - centerY
+                y -
+                centerY
             );
 
 
@@ -609,7 +835,7 @@ function drawSlotMachine(
 
 
         // ----------------------------------------------------
-        // SEPARATION
+        // SÉPARATION
         // ----------------------------------------------------
 
         ctx.strokeStyle =
@@ -617,17 +843,23 @@ function drawSlotMachine(
 
         ctx.lineWidth = 1;
 
+
         ctx.beginPath();
+
 
         ctx.moveTo(
             35,
-            y + rowHeight / 2
+            y +
+                rowHeight / 2
         );
+
 
         ctx.lineTo(
             width - 35,
-            y + rowHeight / 2
+            y +
+                rowHeight / 2
         );
+
 
         ctx.stroke();
 
@@ -638,7 +870,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // CADRE DU RESULTAT
+    // CADRE DE LA CASE CENTRALE
     // --------------------------------------------------------
 
     const centralTop =
@@ -648,6 +880,7 @@ function drawSlotMachine(
 
     ctx.fillStyle =
         "rgba(185,154,82,0.10)";
+
 
     ctx.fillRect(
         22,
@@ -660,7 +893,9 @@ function drawSlotMachine(
     ctx.strokeStyle =
         "#c8a95c";
 
+
     ctx.lineWidth = 4;
+
 
     ctx.strokeRect(
         22,
@@ -671,7 +906,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // FIN
+    // FIN DU SPIN
     // --------------------------------------------------------
 
     if (finished) {
@@ -679,7 +914,9 @@ function drawSlotMachine(
         ctx.strokeStyle =
             "#e0bd62";
 
+
         ctx.lineWidth = 5;
+
 
         ctx.strokeRect(
             15,
@@ -692,166 +929,16 @@ function drawSlotMachine(
 
 }
 
-// ============================================================
-// CREATION DE LA LISTE DE DEFILÉ
-// ============================================================
-
-function createSpinSequence(
-    items,
-    selectedItem
-) {
-    const sequence = [];
-
-    if (!items.length) {
-        return sequence;
-    }
-
-    // --------------------------------------------------------
-    // PHASE DE SPIN
-    // --------------------------------------------------------
-
-    const spinCount =
-        Math.max(
-            35,
-            Math.min(
-                70,
-                Math.floor(
-                    items.length * 0.4
-                )
-            )
-        );
-
-    for (
-        let i = 0;
-        i < spinCount;
-        i++
-    ) {
-        const randomIndex =
-            Math.floor(
-                Math.random() *
-                items.length
-            );
-
-        sequence.push(
-            items[randomIndex]
-        );
-    }
-
-    // --------------------------------------------------------
-    // FIN DU SPIN
-    //
-    // On veut :
-    //
-    // -2
-    // -1
-    // RESULTAT
-    // +1
-    // +2
-    //
-    // mais on ajoute aussi une case de sécurité
-    // de chaque côté pour que l'animation puisse
-    // ralentir proprement.
-    // --------------------------------------------------------
-
-    const selectedIndex =
-        items.indexOf(
-            selectedItem
-        );
-
-    const before3 =
-        items[
-            (
-                selectedIndex - 3 +
-                items.length
-            ) %
-            items.length
-        ];
-
-    const before2 =
-        items[
-            (
-                selectedIndex - 2 +
-                items.length
-            ) %
-            items.length
-        ];
-
-    const before1 =
-        items[
-            (
-                selectedIndex - 1 +
-                items.length
-            ) %
-            items.length
-        ];
-
-    const after1 =
-        items[
-            (
-                selectedIndex + 1
-            ) %
-            items.length
-        ];
-
-    const after2 =
-        items[
-            (
-                selectedIndex + 2
-            ) %
-            items.length
-        ];
-
-    const after3 =
-        items[
-            (
-                selectedIndex + 3
-            ) %
-            items.length
-        ];
-
-    sequence.push(
-        before3
-    );
-
-    sequence.push(
-        before2
-    );
-
-    sequence.push(
-        before1
-    );
-
-    sequence.push(
-        selectedItem
-    );
-
-    sequence.push(
-        after1
-    );
-
-    sequence.push(
-        after2
-    );
-
-    sequence.push(
-        after3
-    );
-
-    return sequence;
-}
 
 // ============================================================
-// ANIMATION MACHINE A SOUS
+// SPIN D'UN BANDIT
 // ============================================================
 
 function spinSlotMachine(
+    wheel,
     type,
     wheelCollection
 ) {
-
-    const wheel =
-        wheelCollection[type];
-
 
     if (
         !wheel ||
@@ -875,10 +962,6 @@ function spinSlotMachine(
         );
 
 
-    wheel.selectedItem =
-        selectedItem;
-
-
     const sequence =
         createSpinSequence(
             wheel.items,
@@ -886,13 +969,32 @@ function spinSlotMachine(
         );
 
 
-    const canvas =
-        wheel.canvas;
+    // --------------------------------------------------------
+    // Le résultat est à cet endroit dans la séquence
+    // --------------------------------------------------------
+
+    const selectedSequenceIndex =
+        sequence.length - 4;
 
 
     const rowHeight =
-        getRowHeight(canvas);
+        getRowHeight(
+            wheel.canvas
+        );
 
+
+    // --------------------------------------------------------
+    // Distance totale
+    // --------------------------------------------------------
+
+    const totalDistance =
+        selectedSequenceIndex *
+        rowHeight;
+
+
+    // --------------------------------------------------------
+    // ANIMATION
+    // --------------------------------------------------------
 
     const duration =
         4300;
@@ -900,10 +1002,6 @@ function spinSlotMachine(
 
     const startTime =
         performance.now();
-
-
-    let lastStep =
-        -1;
 
 
     function animate(now) {
@@ -927,90 +1025,79 @@ function spinSlotMachine(
         }
 
 
-        // ----------------------------------------------------
-        // EASING
-        // ----------------------------------------------------
-
+        // Ease-out très progressif
         const eased =
             1 -
             Math.pow(
-                1 - progress,
-                4
+                1 -
+                progress,
+                5
             );
 
 
-        const selectedIndex =
-            sequence.length - 4;
-        
-        const totalDistance =
-            selectedIndex *
+        const distance =
+            totalDistance *
+            eased;
+
+
+        // ----------------------------------------------------
+        // Position flottante dans la séquence
+        // ----------------------------------------------------
+
+        const currentPosition =
+            distance /
             rowHeight;
 
 
-        const distance =
-            eased *
-            totalDistance;
-
-
-        const currentStep =
+        const currentIndex =
             Math.floor(
-                distance /
-                rowHeight
+                currentPosition
             );
 
 
         const offset =
-            distance %
+            (
+                currentPosition -
+                currentIndex
+            ) *
             rowHeight;
 
 
         // ----------------------------------------------------
-        // PETIT EFFET SONORE VISUEL
-        // changement de ligne
-        // ----------------------------------------------------
-
-        if (
-            currentStep !== lastStep
-        ) {
-
-            lastStep =
-                currentStep;
-
-        }
-
-
-        // ----------------------------------------------------
-        // Fenêtre visible
+        // Toujours 5 éléments visibles
         // ----------------------------------------------------
 
         const visibleItems = [];
-        
+
+
         const visibleStartIndex =
             Math.max(
                 0,
-                baseIndex - 2
+                currentIndex - 2
             );
-        
-        
+
+
         for (
             let i = 0;
             i < 5;
             i++
         ) {
-        
+
             const index =
                 Math.min(
-                    visibleStartIndex + i,
+                    visibleStartIndex +
+                    i,
                     sequence.length - 1
                 );
-        
+
+
             visibleItems.push(
                 sequence[index]
             );
-        
+
         }
-        
-        
+
+
         drawSlotMachine(
             wheel,
             visibleItems,
@@ -1024,10 +1111,9 @@ function spinSlotMachine(
             progress < 1
         ) {
 
-            wheel.animationId =
-                requestAnimationFrame(
-                    animate
-                );
+            requestAnimationFrame(
+                animate
+            );
 
 
             return;
@@ -1036,35 +1122,40 @@ function spinSlotMachine(
 
 
         // ----------------------------------------------------
-        // FIN
+        // POSITION FINALE
         // ----------------------------------------------------
 
         const finalItems = [];
-        
+
+
         for (
-            let i = selectedIndex - 2;
-            i <= selectedIndex + 2;
+            let i =
+                selectedSequenceIndex - 2;
+
+            i <=
+                selectedSequenceIndex + 2;
+
             i++
         ) {
+
             finalItems.push(
                 sequence[i]
             );
+
         }
-        
+
+
         drawSlotMachine(
             wheel,
             finalItems,
             0,
             true,
-            selectedIndex - 2
+            selectedSequenceIndex - 2
         );
+
 
         wheel.spinning =
             false;
-
-
-        wheel.animationId =
-            null;
 
 
         showResult(
@@ -1076,7 +1167,7 @@ function spinSlotMachine(
 
 
         // ----------------------------------------------------
-        // FIN DES 3 MACHINES
+        // FIN DES 3 BANDITS
         // ----------------------------------------------------
 
         if (
@@ -1124,10 +1215,9 @@ function spinSlotMachine(
     }
 
 
-    wheel.animationId =
-        requestAnimationFrame(
-            animate
-        );
+    requestAnimationFrame(
+        animate
+    );
 
 }
 
@@ -1173,10 +1263,6 @@ async function initialize() {
         results[2];
 
 
-    // --------------------------------------------------------
-    // Mise à jour des machines
-    // --------------------------------------------------------
-
     wheels.talisman.items =
         talismans;
 
@@ -1202,21 +1288,30 @@ async function initialize() {
 
 
     // --------------------------------------------------------
-    // Affichage initial
+    // Affichage initial aléatoire
     // --------------------------------------------------------
 
     Object
-        .values(wheels)
+        .entries(wheels)
         .forEach(
-            function(wheel) {
+            function(entry) {
+
+                const wheel =
+                    entry[1];
+
+
+                const initialItems =
+                    getInitialItems(
+                        wheel.items
+                    );
+
 
                 drawSlotMachine(
                     wheel,
-                    getInitialItems(
-                        wheel.items
-                    ),
+                    initialItems,
                     0,
-                    false
+                    false,
+                    0
                 );
 
             }
@@ -1224,17 +1319,26 @@ async function initialize() {
 
 
     Object
-        .values(singleWheels)
+        .entries(singleWheels)
         .forEach(
-            function(wheel) {
+            function(entry) {
+
+                const wheel =
+                    entry[1];
+
+
+                const initialItems =
+                    getInitialItems(
+                        wheel.items
+                    );
+
 
                 drawSlotMachine(
                     wheel,
-                    getInitialItems(
-                        wheel.items
-                    ),
+                    initialItems,
                     0,
-                    false
+                    false,
+                    0
                 );
 
             }
@@ -1258,49 +1362,6 @@ async function initialize() {
         objectifs.length
     );
 
-}
-
-
-// ============================================================
-// ITEMS INITIAUX
-// ============================================================
-
-function getInitialItems(items) {
-
-    if (
-        !items ||
-        !items.length
-    ) {
-        return [];
-    }
-
-    const result = [];
-
-    // Point de départ totalement aléatoire
-    const startIndex =
-        Math.floor(
-            Math.random() *
-            items.length
-        );
-
-    // 5 éléments consécutifs
-    // avec boucle sur le fichier
-    for (
-        let i = 0;
-        i < 5;
-        i++
-    ) {
-        result.push(
-            items[
-                (
-                    startIndex + i
-                ) %
-                items.length
-            ]
-        );
-    }
-
-    return result;
 }
 
 
@@ -1356,7 +1417,8 @@ document
 
                     const content =
                         document.getElementById(
-                            "tab-" + target
+                            "tab-" +
+                            target
                         );
 
 
@@ -1376,7 +1438,7 @@ document
 
 
 // ============================================================
-// BOUTON : TOURNER LES 3 MACHINES
+// TOURNER LES 3 BANDITS
 // ============================================================
 
 function spinAll() {
@@ -1409,26 +1471,6 @@ function spinAll() {
     }
 
 
-    // --------------------------------------------------------
-    // Vérification des listes
-    // --------------------------------------------------------
-
-    if (
-        !talismans.length ||
-        !armes.length ||
-        !objectifs.length
-    ) {
-
-        console.error(
-            "Une des listes est vide."
-        );
-
-
-        return;
-
-    }
-
-
     button.disabled =
         true;
 
@@ -1437,23 +1479,22 @@ function spinAll() {
         "⚔ DESTIN EN COURS... ⚔";
 
 
-    // --------------------------------------------------------
-    // Lancement simultané
-    // --------------------------------------------------------
-
     spinSlotMachine(
+        wheels.talisman,
         "talisman",
         wheels
     );
 
 
     spinSlotMachine(
+        wheels.arme,
         "arme",
         wheels
     );
 
 
     spinSlotMachine(
+        wheels.objectif,
         "objectif",
         wheels
     );
@@ -1462,7 +1503,7 @@ function spinAll() {
 
 
 // ============================================================
-// ROUE INDIVIDUELLE
+// TOURNER UNE SEULE MACHINE
 // ============================================================
 
 function spinSingle(type) {
@@ -1502,6 +1543,7 @@ function spinSingle(type) {
 
 
     spinSlotMachine(
+        wheel,
         type,
         singleWheels
     );
@@ -1586,7 +1628,6 @@ function showResult(
         [
 
             {
-
                 transform:
                     "scale(0.85)",
 
