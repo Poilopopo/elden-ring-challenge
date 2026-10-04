@@ -392,29 +392,25 @@ function drawSlotMachine(
     wheel,
     visibleItems,
     offset,
-    finished
+    finished,
+    startSequenceIndex
 ) {
 
     const canvas =
         wheel.canvas;
 
-
     if (!canvas) {
         return;
     }
 
-
     const ctx =
         canvas.getContext("2d");
-
 
     const width =
         canvas.width;
 
-
     const height =
         canvas.height;
-
 
     ctx.clearRect(
         0,
@@ -431,7 +427,6 @@ function drawSlotMachine(
     ctx.fillStyle =
         "#110f0b";
 
-
     ctx.fillRect(
         0,
         0,
@@ -441,15 +436,13 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // CADRE EXTERIEUR
+    // CADRE
     // --------------------------------------------------------
 
     ctx.strokeStyle =
         "#b99a52";
 
-
     ctx.lineWidth = 8;
-
 
     ctx.strokeRect(
         8,
@@ -462,9 +455,7 @@ function drawSlotMachine(
     ctx.strokeStyle =
         "#5d4d2e";
 
-
     ctx.lineWidth = 3;
-
 
     ctx.strokeRect(
         20,
@@ -474,29 +465,24 @@ function drawSlotMachine(
     );
 
 
-    // --------------------------------------------------------
-    // ZONE DES ITEMS
-    // --------------------------------------------------------
-
     const rowHeight =
         getRowHeight(canvas);
 
-
     const centerY =
         height / 2;
-
 
     const fontSize =
         getFontSize(canvas);
 
 
+    // --------------------------------------------------------
+    // ZONE DE DEFILEMENT
+    // --------------------------------------------------------
+
     ctx.save();
 
-
-    // Zone centrale légèrement plus sombre
     ctx.fillStyle =
         "#1a1710";
-
 
     ctx.fillRect(
         24,
@@ -506,12 +492,7 @@ function drawSlotMachine(
     );
 
 
-    // --------------------------------------------------------
-    // CLIP
-    // --------------------------------------------------------
-
     ctx.beginPath();
-
 
     ctx.rect(
         24,
@@ -519,7 +500,6 @@ function drawSlotMachine(
         width - 48,
         height - 48
     );
-
 
     ctx.clip();
 
@@ -537,6 +517,9 @@ function drawSlotMachine(
         const item =
             visibleItems[i];
 
+        const sequenceIndex =
+            startSequenceIndex + i;
+
 
         const y =
             centerY +
@@ -548,12 +531,16 @@ function drawSlotMachine(
 
 
         // ----------------------------------------------------
-        // LIGNE
+        // COULEUR BASEE SUR LA POSITION REELLE
         // ----------------------------------------------------
 
         ctx.fillStyle =
             slotColors[
-                i %
+                (
+                    sequenceIndex %
+                    slotColors.length +
+                    slotColors.length
+                ) %
                 slotColors.length
             ];
 
@@ -575,10 +562,8 @@ function drawSlotMachine(
             fontSize +
             "px Cinzel, Georgia, serif";
 
-
         ctx.textAlign =
             "center";
-
 
         ctx.textBaseline =
             "middle";
@@ -592,7 +577,6 @@ function drawSlotMachine(
             );
 
 
-        // Ligne centrale plus lumineuse
         const distanceFromCenter =
             Math.abs(
                 y - centerY
@@ -631,24 +615,19 @@ function drawSlotMachine(
         ctx.strokeStyle =
             "#806c3e";
 
-
         ctx.lineWidth = 1;
 
-
         ctx.beginPath();
-
 
         ctx.moveTo(
             35,
             y + rowHeight / 2
         );
 
-
         ctx.lineTo(
             width - 35,
             y + rowHeight / 2
         );
-
 
         ctx.stroke();
 
@@ -659,7 +638,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // BANDEAU CENTRAL
+    // CADRE DU RESULTAT
     // --------------------------------------------------------
 
     const centralTop =
@@ -669,7 +648,6 @@ function drawSlotMachine(
 
     ctx.fillStyle =
         "rgba(185,154,82,0.10)";
-
 
     ctx.fillRect(
         22,
@@ -682,9 +660,7 @@ function drawSlotMachine(
     ctx.strokeStyle =
         "#c8a95c";
 
-
     ctx.lineWidth = 4;
-
 
     ctx.strokeRect(
         22,
@@ -695,95 +671,7 @@ function drawSlotMachine(
 
 
     // --------------------------------------------------------
-    // FLECHES LATERALES
-    // --------------------------------------------------------
-
-    ctx.fillStyle =
-        "#c8a95c";
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-        10,
-        centerY
-    );
-
-
-    ctx.lineTo(
-        28,
-        centerY - 12
-    );
-
-
-    ctx.lineTo(
-        28,
-        centerY + 12
-    );
-
-
-    ctx.closePath();
-
-
-    ctx.fill();
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-        width - 10,
-        centerY
-    );
-
-
-    ctx.lineTo(
-        width - 28,
-        centerY - 12
-    );
-
-
-    ctx.lineTo(
-        width - 28,
-        centerY + 12
-    );
-
-
-    ctx.closePath();
-
-
-    ctx.fill();
-
-
-    // --------------------------------------------------------
-    // TITRE
-    // --------------------------------------------------------
-
-    ctx.font =
-        "700 " +
-        (
-            canvas.width >= 600
-                ? 18
-                : 15
-        ) +
-        "px Cinzel, Georgia, serif";
-
-
-    ctx.fillStyle =
-        "#c8a95c";
-
-
-    ctx.textAlign =
-        "center";
-
-
-    ctx.textBaseline =
-        "top";
-
-
-    // --------------------------------------------------------
-    // EFFET JACKPOT
+    // FIN
     // --------------------------------------------------------
 
     if (finished) {
@@ -791,9 +679,7 @@ function drawSlotMachine(
         ctx.strokeStyle =
             "#e0bd62";
 
-
         ctx.lineWidth = 5;
-
 
         ctx.strokeRect(
             15,
@@ -802,32 +688,9 @@ function drawSlotMachine(
             height - 30
         );
 
-
-        ctx.font =
-            "700 " +
-            (
-                canvas.width >= 600
-                    ? 18
-                    : 15
-            ) +
-            "px Cinzel, Georgia, serif";
-
-
-        ctx.fillStyle =
-            "#f0d98f";
-
-
-        ctx.textAlign =
-            "center";
-
-
-        ctx.textBaseline =
-            "bottom";
-
     }
 
 }
-
 
 // ============================================================
 // CREATION DE LA LISTE DE DEFILÉ
@@ -1121,56 +984,39 @@ function spinSlotMachine(
         // ----------------------------------------------------
 
         const visibleItems = [];
-
-
-        const baseIndex =
-            Math.min(
-                currentStep,
-                sequence.length - 1
+        
+        const visibleStartIndex =
+            Math.max(
+                0,
+                baseIndex - 2
             );
-
-
+        
+        
         for (
-            let i = -2;
-            i <= 2;
+            let i = 0;
+            i < 5;
             i++
         ) {
-
-            let index =
-                baseIndex + i;
-
-
-            if (
-                index < 0
-            ) {
-
-                index = 0;
-
-            }
-
-
-            if (
-                index >= sequence.length
-            ) {
-
-                index =
-                    sequence.length - 1;
-
-            }
-
-
+        
+            const index =
+                Math.min(
+                    visibleStartIndex + i,
+                    sequence.length - 1
+                );
+        
             visibleItems.push(
                 sequence[index]
             );
-
+        
         }
-
-
+        
+        
         drawSlotMachine(
             wheel,
             visibleItems,
             offset,
-            false
+            false,
+            visibleStartIndex
         );
 
 
@@ -1209,9 +1055,9 @@ function spinSlotMachine(
             wheel,
             finalItems,
             0,
-            true
+            true,
+            selectedIndex - 2
         );
-
 
         wheel.spinning =
             false;
