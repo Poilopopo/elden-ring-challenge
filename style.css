@@ -151,6 +151,75 @@ h2 {
         clamp(9px, 1.4vh, 13px);
 }
 
+/* ========================================================= */
+/* LANGUE */
+/* ========================================================= */
+
+.language-switcher {
+    position: absolute;
+
+    top: 14px;
+    right: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    z-index: 20;
+}
+
+
+.language-button {
+    padding: 4px 5px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #665d4c;
+
+    font-family:
+        "Cinzel",
+        Georgia,
+        serif;
+
+    font-size: 10px;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        text-shadow 0.2s ease;
+}
+
+
+.language-button:hover {
+    color: #c8a95c;
+
+    text-shadow:
+        0 0 8px
+        rgba(200, 169, 92, 0.3);
+}
+
+
+.language-button.active {
+    color: #d8c28a;
+
+    text-shadow:
+        0 0 8px
+        rgba(200, 169, 92, 0.25);
+}
+
+
+.language-separator {
+    color: #51462d;
+
+    font-size: 10px;
+}
 
 /* ========================================================= */
 /* ONGLETS */
@@ -963,6 +1032,19 @@ and (max-height: 850px) {
 
         width: 90%;
 
+    }
+
+    .language-switcher {
+        top: 8px;
+        right: 10px;
+    }
+    
+    
+    .language-button {
+        font-size: 9px;
+    
+        padding:
+            3px 2px;
     }
 
 }
