@@ -1,11 +1,532 @@
 // ============================================================
 // ELDEN RING CHALLENGE
 // MACHINE A SOUS
+// FR / EN
 // ============================================================
+
+
+// ============================================================
+// LANGUE
+// ============================================================
+
+let currentLanguage =
+    localStorage.getItem("eldenRingLanguage") ||
+    "fr";
+
+
+// ============================================================
+// TRADUCTIONS
+// ============================================================
+
+const translations = {
+
+    fr: {
+
+        title:
+            "CHALLENGE RANDOM",
+
+        subtitle:
+            "Que la Grâce décide de votre destin...",
+
+        challenge:
+            "⚔ CHALLENGE",
+
+        talisman:
+            "✦ TALISMAN",
+
+        arme:
+            "✦ ARME",
+
+        objectif:
+            "✦ OBJECTIF",
+
+        spinAll:
+            "⚔ TOURNER LES ROUES ⚔",
+
+        fate:
+            "⚔ DESTIN EN COURS... ⚔",
+
+        spin:
+            "✦ TOURNER ✦",
+
+        destiny:
+            "DESTIN..."
+
+    },
+
+
+    en: {
+
+        title:
+            "RANDOM CHALLENGE",
+
+        subtitle:
+            "May Grace decide your fate...",
+
+        challenge:
+            "⚔ CHALLENGE",
+
+        talisman:
+            "✦ TALISMAN",
+
+        arme:
+            "✦ WEAPON",
+
+        objectif:
+            "✦ OBJECTIVE",
+
+        spinAll:
+            "⚔ SPIN THE WHEELS ⚔",
+
+        fate:
+            "⚔ FATE IN PROGRESS... ⚔",
+
+        spin:
+            "✦ SPIN ✦",
+
+        destiny:
+            "FATE..."
+
+    }
+
+};
+
+
+// ============================================================
+// NOM D'UN ITEM SELON LA LANGUE
+// ============================================================
+
+function getItemName(item) {
+
+    if (!item) {
+
+        return "";
+
+    }
+
+
+    if (
+        currentLanguage === "en"
+    ) {
+
+        return item.nameEN;
+
+    }
+
+
+    return item.nameFR;
+
+}
+
+
+// ============================================================
+// CHANGEMENT DE LANGUE
+// ============================================================
+
+function setLanguage(language) {
+
+    if (
+        language !== "fr" &&
+        language !== "en"
+    ) {
+
+        return;
+
+    }
+
+
+    currentLanguage =
+        language;
+
+
+    localStorage.setItem(
+        "eldenRingLanguage",
+        currentLanguage
+    );
+
+
+    updateInterface();
+
+
+    updateLanguageButtons();
+
+
+    redrawAllWheels();
+
+}
+
+
+// ============================================================
+// MISE A JOUR DE L'INTERFACE
+// ============================================================
+
+function updateInterface() {
+
+    const t =
+        translations[
+            currentLanguage
+        ];
+
+
+    // --------------------------------------------------------
+    // HEADER
+    // --------------------------------------------------------
+
+    const h2 =
+        document.querySelector(
+            "header h2"
+        );
+
+
+    if (h2) {
+
+        h2.textContent =
+            t.title;
+
+    }
+
+
+    const subtitle =
+        document.querySelector(
+            "header .subtitle"
+        );
+
+
+    if (subtitle) {
+
+        subtitle.textContent =
+            t.subtitle;
+
+    }
+
+
+    // --------------------------------------------------------
+    // ONGLET
+    // --------------------------------------------------------
+
+    const tabs =
+        document.querySelectorAll(
+            ".tab"
+        );
+
+
+    tabs.forEach(
+        function(tab) {
+
+            const target =
+                tab.dataset.tab;
+
+
+            if (
+                translations[
+                    currentLanguage
+                ][target]
+            ) {
+
+                tab.textContent =
+                    translations[
+                        currentLanguage
+                    ][target];
+
+            }
+
+        }
+    );
+
+
+    // --------------------------------------------------------
+    // TITRES DES MACHINES
+    // --------------------------------------------------------
+
+    document
+        .querySelectorAll(
+            ".wheel-card h3, .single-wheel-card h3"
+        )
+        .forEach(
+            function(title) {
+
+                const text =
+                    title.textContent
+                        .replace(
+                            /✦/g,
+                            ""
+                        )
+                        .trim()
+                        .toLowerCase();
+
+
+                if (
+                    text.includes("talisman") ||
+                    text.includes("talisman")
+                ) {
+
+                    title.textContent =
+                        t.talisman;
+
+                }
+
+                else if (
+                    text.includes("arme") ||
+                    text.includes("weapon")
+                ) {
+
+                    title.textContent =
+                        t.arme;
+
+                }
+
+                else if (
+                    text.includes("objectif") ||
+                    text.includes("objective")
+                ) {
+
+                    title.textContent =
+                        t.objectif;
+
+                }
+
+            }
+        );
+
+
+    // --------------------------------------------------------
+    // BOUTON PRINCIPAL
+    // --------------------------------------------------------
+
+    const spinAllButton =
+        document.getElementById(
+            "spin-all"
+        );
+
+
+    if (
+        spinAllButton &&
+        !spinAllButton.disabled
+    ) {
+
+        spinAllButton.textContent =
+            t.spinAll;
+
+    }
+
+
+    // --------------------------------------------------------
+    // BOUTONS SOLO
+    // --------------------------------------------------------
+
+    document
+        .querySelectorAll(
+            ".single-spin"
+        )
+        .forEach(
+            function(button) {
+
+                if (
+                    !button.disabled
+                ) {
+
+                    button.textContent =
+                        t.spin;
+
+                }
+
+            }
+        );
+
+
+    // --------------------------------------------------------
+    // FOOTER
+    // --------------------------------------------------------
+
+    const footer =
+        document.querySelector(
+            "footer"
+        );
+
+
+    if (footer) {
+
+        const spans =
+            footer.querySelectorAll(
+                "span"
+            );
+
+
+        footer.textContent = "";
+
+
+        const left =
+            document.createElement(
+                "span"
+            );
+
+
+        left.textContent =
+            "—";
+
+
+        const text =
+            document.createTextNode(
+                " ELDEN RING " +
+                (
+                    currentLanguage === "fr"
+                        ? "CHALLENGE"
+                        : "CHALLENGE"
+                ) +
+                " "
+            );
+
+
+        const right =
+            document.createElement(
+                "span"
+            );
+
+
+        right.textContent =
+            "—";
+
+
+        footer.appendChild(
+            left
+        );
+
+
+        footer.appendChild(
+            text
+        );
+
+
+        footer.appendChild(
+            right
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// BOUTONS DE LANGUE
+// ============================================================
+
+function updateLanguageButtons() {
+
+    const frButton =
+        document.getElementById(
+            "lang-fr"
+        );
+
+
+    const enButton =
+        document.getElementById(
+            "lang-en"
+        );
+
+
+    if (frButton) {
+
+        frButton.classList.toggle(
+            "active",
+            currentLanguage === "fr"
+        );
+
+    }
+
+
+    if (enButton) {
+
+        enButton.classList.toggle(
+            "active",
+            currentLanguage === "en"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// REDESSIN DES ROUES
+// ============================================================
+//
+// Important :
+// On ne relance PAS les roues.
+//
+// On redessine simplement les mêmes éléments
+// avec la langue sélectionnée.
+// ============================================================
+
+function redrawAllWheels() {
+
+    Object
+        .values(
+            wheels
+        )
+        .forEach(
+            function(wheel) {
+
+                if (
+                    wheel.currentItems &&
+                    wheel.currentItems.length
+                ) {
+
+                    drawSlotMachine(
+                        wheel,
+                        wheel.currentItems,
+                        wheel.currentOffset || 0,
+                        false,
+                        wheel.currentStartSequenceIndex || 0
+                    );
+
+                }
+
+            }
+        );
+
+
+    Object
+        .values(
+            singleWheels
+        )
+        .forEach(
+            function(wheel) {
+
+                if (
+                    wheel.currentItems &&
+                    wheel.currentItems.length
+                ) {
+
+                    drawSlotMachine(
+                        wheel,
+                        wheel.currentItems,
+                        wheel.currentOffset || 0,
+                        false,
+                        wheel.currentStartSequenceIndex || 0
+                    );
+
+                }
+
+            }
+        );
+
+}
 
 
 // ============================================================
 // CHARGEMENT DES FICHIERS TXT
+// ============================================================
+//
+// FORMAT :
+//
+// nom_fr|nom_en|chance|image.png
+//
+// Exemple :
+//
+// Talisman tortue|Green Turtle Talisman|50|tortue.png
+//
+// Chance facultative.
+// Image facultative.
 // ============================================================
 
 async function loadItems(filename) {
@@ -34,78 +555,137 @@ async function loadItems(filename) {
 
             .split(/\r?\n/)
 
-            .map(function(line) {
+            .map(
+                function(line) {
 
-                return line.trim();
+                    return line.trim();
 
-            })
+                }
+            )
 
+            // ------------------------------------------------
             // Ignore les lignes vides
-            .filter(function(line) {
+            // ------------------------------------------------
 
-                return line.length > 0;
+            .filter(
+                function(line) {
 
-            })
+                    return line.length > 0;
 
+                }
+            )
+
+            // ------------------------------------------------
             // Ignore les commentaires
-            .filter(function(line) {
+            // ------------------------------------------------
 
-                return !line.startsWith("#");
+            .filter(
+                function(line) {
 
-            })
+                    return !line.startsWith("#");
 
-            .map(function(line) {
+                }
+            )
 
-                const parts =
-                    line.split("|");
+            .map(
+                function(line) {
 
-
-                const name =
-                    parts[0].trim();
-
-
-                // ------------------------------------------------
-                // POIDS PAR DEFAUT
-                // ------------------------------------------------
-
-                let weight = 50;
+                    const parts =
+                        line.split("|");
 
 
-                if (
-                    parts.length > 1 &&
-                    parts[1].trim() !== ""
-                ) {
+                    // ------------------------------------------------
+                    // NOM FRANCAIS
+                    // ------------------------------------------------
 
-                    const parsedWeight =
-                        Number(
-                            parts[1].trim()
-                        );
+                    const nameFR =
+                        (
+                            parts[0] ||
+                            ""
+                        ).trim();
+
+
+                    // ------------------------------------------------
+                    // NOM ANGLAIS
+                    // ------------------------------------------------
+
+                    const nameEN =
+                        (
+                            parts[1] ||
+                            nameFR
+                        ).trim();
+
+
+                    // ------------------------------------------------
+                    // POIDS PAR DEFAUT
+                    // ------------------------------------------------
+
+                    let weight =
+                        50;
 
 
                     if (
-                        Number.isFinite(
-                            parsedWeight
-                        ) &&
-                        parsedWeight > 0
+                        parts.length > 2 &&
+                        parts[2].trim() !== ""
                     ) {
 
-                        weight =
-                            parsedWeight;
+                        const parsedWeight =
+                            Number(
+                                parts[2].trim()
+                            );
+
+
+                        if (
+                            Number.isFinite(
+                                parsedWeight
+                            ) &&
+                            parsedWeight > 0
+                        ) {
+
+                            weight =
+                                parsedWeight;
+
+                        }
 
                     }
 
+
+                    // ------------------------------------------------
+                    // IMAGE
+                    // ------------------------------------------------
+
+                    let image =
+                        "";
+
+
+                    if (
+                        parts.length > 3
+                    ) {
+
+                        image =
+                            parts[3].trim();
+
+                    }
+
+
+                    return {
+
+                        nameFR:
+                            nameFR,
+
+                        nameEN:
+                            nameEN,
+
+                        weight:
+                            weight,
+
+                        image:
+                            image
+
+                    };
+
                 }
-
-
-                return {
-
-                    name: name,
-
-                    weight: weight
-
-                };
-
-            });
+            );
 
     }
 
@@ -150,13 +730,26 @@ const wheels = {
                 "wheel-talisman"
             ),
 
-        items: talismans,
+        items:
+            talismans,
 
-        spinning: false,
+        spinning:
+            false,
 
-        selectedItem: null,
+        selectedItem:
+            null,
 
-        animationId: null
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
 
     },
 
@@ -168,13 +761,26 @@ const wheels = {
                 "wheel-arme"
             ),
 
-        items: armes,
+        items:
+            armes,
 
-        spinning: false,
+        spinning:
+            false,
 
-        selectedItem: null,
+        selectedItem:
+            null,
 
-        animationId: null
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
 
     },
 
@@ -186,13 +792,26 @@ const wheels = {
                 "wheel-objectif"
             ),
 
-        items: objectifs,
+        items:
+            objectifs,
 
-        spinning: false,
+        spinning:
+            false,
 
-        selectedItem: null,
+        selectedItem:
+            null,
 
-        animationId: null
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
 
     }
 
@@ -212,13 +831,26 @@ const singleWheels = {
                 "single-wheel-talisman"
             ),
 
-        items: talismans,
+        items:
+            talismans,
 
-        spinning: false,
+        spinning:
+            false,
 
-        selectedItem: null,
+        selectedItem:
+            null,
 
-        animationId: null
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
 
     },
 
@@ -230,13 +862,26 @@ const singleWheels = {
                 "single-wheel-arme"
             ),
 
-        items: armes,
+        items:
+            armes,
 
-        spinning: false,
+        spinning:
+            false,
 
-        selectedItem: null,
+        selectedItem:
+            null,
 
-        animationId: null
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
 
     },
 
@@ -248,13 +893,26 @@ const singleWheels = {
                 "single-wheel-objectif"
             ),
 
-        items: objectifs,
+        items:
+            objectifs,
 
-        spinning: false,
+        spinning:
+            false,
 
-        selectedItem: null,
+        selectedItem:
+            null,
 
-        animationId: null
+        animationId:
+            null,
+
+        currentItems:
+            null,
+
+        currentOffset:
+            0,
+
+        currentStartSequenceIndex:
+            0
 
     }
 
@@ -420,24 +1078,6 @@ function truncateText(
 // ============================================================
 // DESSIN DE LA MACHINE A SOUS
 // ============================================================
-//
-// IMPORTANT :
-// On dessine TOUJOURS 7 éléments.
-//
-//      -3
-//      -2
-//      -1
-//       0  <- résultat
-//      +1
-//      +2
-//      +3
-//
-// Les 5 du milieu sont visibles.
-// Les deux autres sont cachés naturellement par le cadre.
-//
-// Ainsi, pendant l'animation, les éléments entrent et sortent
-// réellement de la fenêtre au lieu d'apparaître brutalement.
-// ============================================================
 
 function drawSlotMachine(
     wheel,
@@ -456,6 +1096,22 @@ function drawSlotMachine(
         return;
 
     }
+
+
+    // --------------------------------------------------------
+    // MEMORISATION DE L'AFFICHAGE ACTUEL
+    // --------------------------------------------------------
+
+    wheel.currentItems =
+        visibleItems.slice();
+
+
+    wheel.currentOffset =
+        offset;
+
+
+    wheel.currentStartSequenceIndex =
+        startSequenceIndex;
 
 
     const ctx =
@@ -612,19 +1268,6 @@ function drawSlotMachine(
 
         // ----------------------------------------------------
         // COULEUR LIEE A L'ITEM
-        //
-        // On utilise sa position réelle dans le fichier TXT.
-        //
-        // Donc :
-        //
-        // item 1 = couleur 1
-        // item 2 = couleur 2
-        // item 3 = couleur 3
-        //
-        // et ainsi de suite.
-        //
-        // Les couleurs ne dépendent PAS de leur position
-        // temporaire dans la fenêtre.
         // ----------------------------------------------------
 
         let itemIndex =
@@ -689,7 +1332,7 @@ function drawSlotMachine(
         const text =
             truncateText(
                 ctx,
-                item.name,
+                getItemName(item),
                 width - 90
             );
 
@@ -799,17 +1442,6 @@ function drawSlotMachine(
         rowHeight
     );
 
-
-    // --------------------------------------------------------
-    // PAS DE CADRE SUPPLEMENTAIRE A LA FIN
-    // --------------------------------------------------------
-    //
-    // volontairement rien ici.
-    //
-    // Cela évite les bandes dorées qui apparaissaient
-    // brutalement autour de la machine lors de la révélation.
-    // --------------------------------------------------------
-
 }
 
 
@@ -901,18 +1533,6 @@ function createSpinSequence(
 
     // --------------------------------------------------------
     // RESULTAT
-    //
-    // On ajoute exactement :
-    //
-    // -3
-    // -2
-    // -1
-    // RESULTAT
-    // +1
-    // +2
-    // +3
-    //
-    // en respectant STRICTEMENT l'ordre du fichier TXT.
     // --------------------------------------------------------
 
     const selectedIndex =
@@ -1111,18 +1731,6 @@ function spinSlotMachine(
 
     // --------------------------------------------------------
     // POSITION DU RESULTAT
-    //
-    // Le résultat est le 4e élément de la partie finale :
-    //
-    // -3
-    // -2
-    // -1
-    // RESULTAT
-    // +1
-    // +2
-    // +3
-    //
-    // Donc : longueur - 4
     // --------------------------------------------------------
 
     const selectedSequenceIndex =
@@ -1199,11 +1807,6 @@ function spinSlotMachine(
 
         // ----------------------------------------------------
         // FENETRE DE 7 ELEMENTS
-        //
-        // Les 5 du milieu sont visibles.
-        //
-        // Les 2 supplémentaires sont réellement dessinés
-        // mais sont hors de la zone visible.
         // ----------------------------------------------------
 
         const visibleStartIndex =
@@ -1284,21 +1887,7 @@ function spinSlotMachine(
 
         // ----------------------------------------------------
         // POSITION FINALE
-        //
-        // On garde 7 éléments autour du résultat :
-        //
-        // -3
-        // -2
-        // -1
-        // RESULTAT
-        // +1
-        // +2
-        // +3
-        //
-        // IMPORTANT :
-        // on ne redessine PAS seulement 5 éléments.
-        // Cela évite le fameux "5 qui apparaît à la fin".
-        // --------------------------------------------------------
+        // ----------------------------------------------------
 
         const finalStartIndex =
             selectedSequenceIndex -
@@ -1393,7 +1982,9 @@ function spinSlotMachine(
 
 
                     button.textContent =
-                        "⚔ TOURNER LES ROUES ⚔";
+                        translations[
+                            currentLanguage
+                        ].spinAll;
 
                 }
 
@@ -1558,6 +2149,16 @@ async function initialize() {
 
 
     // --------------------------------------------------------
+    // INTERFACE
+    // --------------------------------------------------------
+
+    updateInterface();
+
+
+    updateLanguageButtons();
+
+
+    // --------------------------------------------------------
     // LOG
     // --------------------------------------------------------
 
@@ -1583,37 +2184,6 @@ async function initialize() {
 
 // ============================================================
 // ITEMS INITIAUX
-// ============================================================
-//
-// Au chargement de la page, on choisit un point de départ
-// totalement aléatoire dans le fichier.
-//
-// Exemple :
-//
-// fichier :
-// 1
-// 2
-// 3
-// 4
-// 5
-//
-// départ sur 4 :
-//
-// 4
-// 5
-// 1
-// 2
-// 3
-//
-// départ sur 1 :
-//
-// 1
-// 2
-// 3
-// 4
-// 5
-//
-// etc.
 // ============================================================
 
 function getInitialItems(items) {
@@ -1641,17 +2211,7 @@ function getInitialItems(items) {
     // --------------------------------------------------------
     // IMPORTANT :
     //
-    // La machine dessine TOUJOURS 7 éléments :
-    //
-    // -3
-    // -2
-    // -1
-    //  0  <- centre
-    // +1
-    // +2
-    // +3
-    //
-    // On fournit donc 7 éléments dès le chargement.
+    // La machine dessine TOUJOURS 7 éléments.
     // --------------------------------------------------------
 
     for (
@@ -1676,6 +2236,7 @@ function getInitialItems(items) {
     return result;
 
 }
+
 
 // ============================================================
 // ONGLET
@@ -1828,7 +2389,9 @@ function spinAll() {
 
 
     button.textContent =
-        "⚔ DESTIN EN COURS... ⚔";
+        translations[
+            currentLanguage
+        ].fate;
 
 
     // --------------------------------------------------------
@@ -1890,7 +2453,9 @@ function spinSingle(type) {
 
 
         button.textContent =
-            "DESTIN...";
+            translations[
+                currentLanguage
+            ].destiny;
 
     }
 
@@ -1921,7 +2486,9 @@ function spinSingle(type) {
 
 
                         button.textContent =
-                            "✦ TOURNER ✦";
+                            translations[
+                                currentLanguage
+                            ].spin;
 
                     }
 
@@ -1979,7 +2546,7 @@ function showResult(
 
 
     name.textContent =
-        item.name;
+        getItemName(item);
 
 
     result.animate(
