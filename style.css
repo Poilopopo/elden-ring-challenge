@@ -320,10 +320,10 @@ h2 {
 /* CHALLENGE */
 /* ========================================================= */
 
-#tab-challenge {
+#tab-challenge,
+#tab-test {
     flex-direction: column;
 }
-
 
 .wheels-container {
     flex: 1;
@@ -537,6 +537,7 @@ canvas {
 
 
 #spin-all,
+#test-spin-all,
 .single-spin {
     display: block;
 
@@ -577,6 +578,7 @@ canvas {
 
 
 #spin-all:hover,
+#test-spin-all:hover,
 .single-spin:hover {
     background:
         linear-gradient(
@@ -595,6 +597,7 @@ canvas {
 
 
 #spin-all:active,
+#test-spin-all:active,
 .single-spin:active {
     transform:
         scale(0.97);
@@ -602,6 +605,7 @@ canvas {
 
 
 #spin-all:disabled,
+#test-spin-all:disabled,
 .single-spin:disabled {
     opacity: 0.55;
 
