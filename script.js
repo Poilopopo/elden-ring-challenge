@@ -2870,12 +2870,19 @@ function spinSingle(type) {
 
 }
 
+
 // ============================================================
 // AFFICHAGE DU RESULTAT
 // ============================================================
 //
-// Le nom du résultat est centré en haut,
-// puis l'image est centrée juste en dessous.
+// L'IMAGE EST AFFICHÉE UNIQUEMENT ICI.
+//
+// Elle n'est PAS dessinée dans le canvas.
+// Elle apparaît dans l'encadré du winner,
+// à droite du nom.
+//
+// Le résultat est mémorisé dans _selectedItem afin
+// de pouvoir être retraduit lors d'un changement de langue.
 // ============================================================
 
 function showResult(
@@ -2919,23 +2926,14 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // FORCE LE CADRE A ETRE VERTICAL
+    // MEMORISE LE WINNER
+    // --------------------------------------------------------
+    //
+    // Très important pour pouvoir le retraduire plus tard.
     // --------------------------------------------------------
 
-    result.style.display =
-        "flex";
-
-    result.style.flexDirection =
-        "column";
-
-    result.style.alignItems =
-        "center";
-
-    result.style.justifyContent =
-        "center";
-
-    result.style.textAlign =
-        "center";
+    result._selectedItem =
+        item;
 
 
     // --------------------------------------------------------
@@ -2947,32 +2945,12 @@ function showResult(
 
 
     // --------------------------------------------------------
-    // FORCE LE NOM A PRENDRE TOUTE LA LARGEUR
-    // --------------------------------------------------------
-
-    name.style.display =
-        "block";
-
-    name.style.width =
-        "100%";
-
-    name.style.textAlign =
-        "center";
-
-    name.style.marginLeft =
-        "0";
-
-    name.style.marginRight =
-        "0";
-
-
-    // --------------------------------------------------------
     // SUPPRIME UNE EVENTUELLE ANCIENNE IMAGE
     // --------------------------------------------------------
 
     const oldImage =
         result.querySelector(
-            ".winner-image-container"
+            ".winner-image"
         );
 
 
@@ -2999,53 +2977,8 @@ function showResult(
     ) {
 
         // ----------------------------------------------------
-        // CONTENEUR DE L'IMAGE
-        // ----------------------------------------------------
-
-        const imageContainer =
-            document.createElement(
-                "div"
-            );
-
-
-        imageContainer.className =
-            "winner-image-container";
-
-
-        imageContainer.style.display =
-            "flex";
-
-
-        imageContainer.style.flexDirection =
-            "row";
-
-
-        imageContainer.style.justifyContent =
-            "center";
-
-
-        imageContainer.style.alignItems =
-            "center";
-
-
-        imageContainer.style.width =
-            "100%";
-
-
-        imageContainer.style.boxSizing =
-            "border-box";
-
-
-        imageContainer.style.margin =
-            "8px 0 0 0";
-
-
-        imageContainer.style.padding =
-            "0";
-
-
-        // ----------------------------------------------------
-        // IMAGE
+        // On utilise une nouvelle balise image dans
+        // l'encadré du résultat.
         // ----------------------------------------------------
 
         const winnerImage =
@@ -3062,8 +2995,14 @@ function showResult(
             getItemName(item);
 
 
+        // ----------------------------------------------------
+        // STYLE UNIQUEMENT SUR L'IMAGE
+        //
+        // Aucun changement du CSS de la page.
+        // ----------------------------------------------------
+
         winnerImage.style.display =
-            "block";
+            "inline-block";
 
 
         winnerImage.style.width =
@@ -3082,16 +3021,24 @@ function showResult(
             "contain";
 
 
-        winnerImage.style.margin =
-            "0";
+        winnerImage.style.verticalAlign =
+            "middle";
 
 
-        winnerImage.style.padding =
+        winnerImage.style.marginLeft =
+            "18px";
+
+
+        winnerImage.style.marginRight =
+            "5px";
+
+
+        winnerImage.style.marginBottom =
             "0";
 
 
         // ----------------------------------------------------
-        // SOURCE DE L'IMAGE
+        // Image
         // ----------------------------------------------------
 
         winnerImage.src =
@@ -3099,27 +3046,18 @@ function showResult(
 
 
         // ----------------------------------------------------
-        // AJOUT IMAGE DANS SON CONTENEUR
-        // ----------------------------------------------------
-
-        imageContainer.appendChild(
-            winnerImage
-        );
-
-
-        // ----------------------------------------------------
-        // AJOUT DU CONTENEUR SOUS LE TEXTE
+        // L'image est placée APRES le libellé du winner
         // ----------------------------------------------------
 
         result.appendChild(
-            imageContainer
+            winnerImage
         );
 
     }
 
 
     // --------------------------------------------------------
-    // ANIMATION DU RESULTAT
+    // ANIMATION EXISTANTE DU RESULTAT
     // --------------------------------------------------------
 
     result.animate(
@@ -3170,6 +3108,7 @@ function showResult(
     );
 
 }
+
 
 // ============================================================
 // LANCEMENT
