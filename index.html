@@ -99,6 +99,13 @@
         >
             ✦ OBJECTIF
         </button>
+
+        <button
+            class="tab"
+            data-tab="test"
+        >
+            🌐 TEST
+        </button>
     
     </nav>
 
@@ -221,6 +228,128 @@
 
         </div>
 
+    </main>
+
+    <!-- ================================================= -->
+    <!-- ONGLET TEST BACKEND -->
+    <!-- ================================================= -->
+    
+    <main
+        id="tab-test"
+        class="tab-content test-tab"
+    >
+    
+        <div class="wheels-container">
+    
+            <!-- TALISMAN -->
+    
+            <section class="wheel-card">
+    
+                <h3>✦ TALISMAN ✦</h3>
+    
+                <div class="wheel-wrapper">
+    
+                    <canvas
+                        id="test-wheel-talisman"
+                        width="500"
+                        height="500"
+                    ></canvas>
+    
+                </div>
+    
+                <div
+                    class="result"
+                    id="test-result-talisman"
+                >
+    
+                    <span class="result-name">
+                        —
+                    </span>
+    
+                </div>
+    
+            </section>
+    
+    
+            <!-- ARME -->
+    
+            <section class="wheel-card">
+    
+                <h3>✦ ARME ✦</h3>
+    
+                <div class="wheel-wrapper">
+    
+                    <canvas
+                        id="test-wheel-arme"
+                        width="500"
+                        height="500"
+                    ></canvas>
+    
+                </div>
+    
+                <div
+                    class="result"
+                    id="test-result-arme"
+                >
+    
+                    <span class="result-name">
+                        —
+                    </span>
+    
+                </div>
+    
+            </section>
+    
+    
+            <!-- OBJECTIF -->
+    
+            <section class="wheel-card">
+    
+                <h3>✦ OBJECTIF ✦</h3>
+    
+                <div class="wheel-wrapper">
+    
+                    <canvas
+                        id="test-wheel-objectif"
+                        width="500"
+                        height="500"
+                    ></canvas>
+    
+                </div>
+    
+                <div
+                    class="result"
+                    id="test-result-objectif"
+                >
+    
+                    <span class="result-name">
+                        —
+                    </span>
+    
+                </div>
+    
+            </section>
+    
+        </div>
+    
+    
+        <div class="spin-container">
+    
+            <button
+                id="test-spin-all"
+                onclick="testBackend()"
+            >
+                🌐 TESTER LE BACKEND
+            </button>
+    
+        </div>
+    
+    
+        <div
+            id="test-challenge-info"
+            class="test-challenge-info"
+        ></div>
+    
     </main>
 
 
